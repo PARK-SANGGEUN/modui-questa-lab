@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>모두의 QUESTA LAB | 탐구 설계 시스템</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06101e; --s1:#0d1c2e; --s2:#101f30; --s3:#162540;
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --mint:#3ef0cc; --mint-d:rgba(62,240,204,.12); --mint-b:rgba(62,240,204,.22);
+  --gold:#ffcc44; --gold-d:rgba(255,204,68,.11);
+  --blue:#6fa5f8; --blue-d:rgba(111,165,248,.12);
+  --purple:#b07ef8; --rose:#f07ea3; --red:#f07a7a;
+  --text:#edf2fc; --t2:#92adc6; --t3:#4e6a82; --t4:#2a3f55;
+  --r:14px; --shadow:0 16px 48px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;font-size:14px}
+body::before{content:"";position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(ellipse 65% 50% at 10% 6%,rgba(62,240,204,.08),transparent),
+             radial-gradient(ellipse 50% 40% at 90% 5%,rgba(176,126,248,.09),transparent),
+             linear-gradient(170deg,#06101e,#0a1826 55%,#071320)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:54px 54px;pointer-events:none}
+button,input,select,textarea{font-family:inherit;font-size:13px}
+button{cursor:pointer}.hidden{display:none!important}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:80;height:58px;display:flex;
+  justify-content:space-between;align-items:center;padding:0 24px;
+  background:rgba(6,16,30,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px}
+.bmark{width:28px;height:28px;border-radius:8px;font-size:14px;font-weight:900;
+  background:linear-gradient(135deg,var(--mint),var(--blue));
+  display:flex;align-items:center;justify-content:center;color:#041220}
+.bname{font-size:13px;font-weight:800;color:var(--text)}
+.bname b{color:var(--mint)}
+.nav-r{display:flex;gap:3px}
+.nb{background:none;border:none;color:var(--t2);padding:7px 12px;border-radius:8px;
+  font-size:12px;font-weight:600;transition:.15s}
+.nb:hover,.nb.on{color:var(--text);background:rgba(255,255,255,.07)}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;
+  min-height:calc(100vh - 58px);padding:64px 6vw;max-width:1240px;margin:0 auto}
+.badge{display:inline-flex;align-items:center;gap:7px;background:var(--mint-d);
+  border:1px solid var(--mint-b);color:var(--mint);padding:5px 13px;border-radius:99px;
+  font-size:11px;font-weight:700;letter-spacing:.4px;margin-bottom:22px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--mint);
+  animation:dp 2s ease-in-out infinite}
+@keyframes dp{0%,100%{box-shadow:0 0 0 0 rgba(62,240,204,.5)}50%{box-shadow:0 0 0 7px rgba(62,240,204,0)}}
+.hero h1{font-size:clamp(38px,5vw,70px);font-weight:900;line-height:1.03;
+  letter-spacing:-2px;margin-bottom:18px}
+.gm{background:linear-gradient(95deg,#fff,var(--mint) 55%,var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gg{background:linear-gradient(95deg,var(--gold),var(--rose));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hlead{font-size:16px;color:#c2d6ec;line-height:1.8;margin-bottom:7px;font-weight:500}
+.hdesc{font-size:13px;color:var(--t2);line-height:1.9;margin-bottom:28px}
+.cta{display:flex;gap:9px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:11px;
+  padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:.16s}
+.btn:hover{transform:translateY(-1px);opacity:.91}
+.bm{background:linear-gradient(135deg,var(--mint),var(--blue));color:#041220}
+.bg2{background:linear-gradient(135deg,var(--gold),#ff9e4a);color:#160a00}
+.bgh{background:rgba(255,255,255,.07);border:1px solid var(--line2);color:var(--text)}
+.hstats{display:flex;gap:24px;margin-top:38px;padding-top:24px;border-top:1px solid var(--line)}
+.sn{font-size:20px;font-weight:800;color:var(--mint);display:block}
+.sl{font-size:11px;color:var(--t3);margin-top:1px;display:block}
+/* floating */
+.hright{position:relative;height:440px}
+.fc{position:absolute;background:rgba(255,255,255,.057);backdrop-filter:blur(12px);
+  border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--shadow)}
+.fc1{width:85%;left:0;top:0;animation:fa 6s ease-in-out infinite alternate}
+.fc2{width:64%;right:0;top:45%;animation:fb 7s ease-in-out infinite alternate}
+.fc3{width:57%;left:2%;bottom:0;animation:fc2k 5s ease-in-out infinite alternate}
+@keyframes fa{to{transform:translateY(-13px)}}
+@keyframes fb{to{transform:translateY(10px) translateX(-5px)}}
+@keyframes fc2k{to{transform:translateY(-8px) translateX(4px)}}
+.fl{font-size:10px;font-weight:700;color:var(--mint);letter-spacing:.6px;
+  text-transform:uppercase;margin-bottom:9px}
+.fbar{height:4px;border-radius:99px;margin:7px 0;
+  background:linear-gradient(90deg,var(--mint),var(--blue),var(--purple));
+  box-shadow:0 0 10px rgba(62,240,204,.3)}
+.fr{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.07);font-size:12px;font-weight:600;
+  color:var(--text);margin:4px 0}
+.fr span{font-size:11px;color:var(--t2)}
+
+/* WRAP */
+.pw{max-width:1240px;margin:0 auto;padding:44px 5vw}
+.sh{margin-bottom:24px}
+.sh h2{font-size:22px;font-weight:800;letter-spacing:-.7px;color:var(--text);margin-bottom:5px}
+.sh p{font-size:12px;color:var(--t2);line-height:1.8}
+
+/* GRADE */
+.gg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.gc{border-radius:var(--r);padding:20px;border:1px solid var(--line);
+  background:var(--s1);cursor:pointer;position:relative;overflow:hidden;transition:.22s}
+.gc::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;
+  border-radius:50%;background:rgba(62,240,204,.09);filter:blur(1px)}
+.gc:hover{transform:translateY(-3px);border-color:rgba(62,240,204,.32)}
+.gc h3{font-size:20px;font-weight:800;color:var(--text);margin-bottom:7px}
+.gc p{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:12px}
+.chip{display:inline-flex;border:1px solid rgba(255,255,255,.11);
+  background:rgba(255,255,255,.055);padding:3px 9px;border-radius:99px;
+  font-size:10px;font-weight:700;margin:2px;color:#c4dcf8}
+
+/* STUDIO */
+.studio{display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start}
+.sidebar{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px;position:sticky;top:70px;max-height:calc(100vh - 90px);overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--t4);border-radius:2px}
+.slbl{display:block;font-size:10px;font-weight:700;color:var(--t3);
+  letter-spacing:.6px;text-transform:uppercase;margin-bottom:7px}
+.sdiv{height:1px;background:var(--line);margin:12px 0}
+
+/* UNIV BUTTONS */
+.ugrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:2px}
+.ub{background:rgba(255,255,255,.035);border:1px solid var(--line);
+  border-radius:9px;padding:8px 9px;text-align:left;cursor:pointer;transition:.15s}
+.ub:hover{border-color:rgba(62,240,204,.3)}
+.ub.on{background:var(--mint-d);border-color:rgba(62,240,204,.45)}
+.ubn{display:block;font-size:11px;font-weight:700;color:var(--t2);line-height:1.3}
+.ub.on .ubn{color:var(--mint)}
+.ubs{display:block;font-size:9px;color:var(--t3);margin-top:1px}
+
+/* FIELD */
+.field{margin-bottom:10px}
+.fl2{display:block;font-size:10px;font-weight:700;color:var(--t3);
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.fi{width:100%;background:rgba(255,255,255,.055);border:1px solid var(--line);
+  border-radius:9px;padding:9px 11px;color:var(--text);font-size:13px;
+  outline:none;transition:.15s}
+.fi:focus{border-color:rgba(62,240,204,.4);background:rgba(62,240,204,.04)}
+.fi::placeholder{color:var(--t3)}
+.fi option{background:#0d1c2e;color:var(--text)}
+textarea.fi{min-height:60px;resize:vertical;line-height:1.6}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+
+/* MODE TABS */
+.mtabs{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:10px}
+.mt{background:rgba(255,255,255,.04);border:1px solid var(--line);
+  border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:var(--t2);transition:.15s}
+.mt.on{background:var(--blue-d);border-color:rgba(111,165,248,.4);color:var(--blue)}
+
+/* GEN BTN */
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:linear-gradient(135deg,var(--mint),var(--blue));color:#041220;
+  border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:800;
+  cursor:pointer;transition:.16s;margin-bottom:6px;letter-spacing:-.2px}
+.gbtn:hover{opacity:.87;transform:translateY(-1px)}
+.gbtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.rtag{display:inline-block;background:var(--gold-d);border:1px solid rgba(255,204,68,.22);
+  color:var(--gold);border-radius:99px;padding:4px 11px;font-size:10px;
+  font-weight:700;margin-bottom:12px;letter-spacing:.2px}
+
+/* RESULT */
+.rp{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;min-height:400px}
+.empty{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:340px;gap:12px;text-align:center}
+.eico{width:48px;height:48px;border-radius:13px;background:var(--mint-d);
+  display:flex;align-items:center;justify-content:center;font-size:22px}
+.empty p{font-size:13px;color:var(--t2);line-height:1.85;max-width:280px}
+
+/* ROADMAP */
+.rm{background:rgba(62,240,204,.05);border:1px solid rgba(62,240,204,.18);
+  border-radius:var(--r);padding:18px;margin-bottom:14px}
+.rmtitle{font-size:13px;font-weight:800;color:var(--mint);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rmtitle span{font-size:11px;color:var(--t2);font-weight:500}
+.rmline{display:flex;flex-direction:column;gap:2px}
+.rmi{display:grid;grid-template-columns:70px 1fr;gap:10px;position:relative}
+.rmi+.rmi::before{content:"";position:absolute;left:34px;top:0;
+  width:1px;height:14px;background:var(--line2)}
+.rmterm{font-size:9px;font-weight:700;color:var(--t3);padding-top:12px;
+  text-align:right;white-space:nowrap;line-height:1.4}
+.rmb{padding:9px 12px;border-radius:9px;margin:3px 0;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);position:relative}
+.rmb.cur{background:rgba(62,240,204,.07);border-color:rgba(62,240,204,.3)}
+.rmb.future{background:rgba(111,165,248,.05);border-color:rgba(111,165,248,.2)}
+.rmbt{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+.rmb.cur .rmbt{color:var(--mint)}
+.rmb.future .rmbt{color:var(--blue)}
+.rmdesc{font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:5px}
+.rmtags{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.rtg{font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;border:1px solid transparent}
+.rtg.m{background:rgba(62,240,204,.1);border-color:rgba(62,240,204,.25);color:var(--mint)}
+.rtg.b{background:rgba(111,165,248,.1);border-color:rgba(111,165,248,.25);color:var(--blue)}
+.rtg.g{background:rgba(255,204,68,.1);border-color:rgba(255,204,68,.25);color:var(--gold)}
+.rtg.p{background:rgba(176,126,248,.1);border-color:rgba(176,126,248,.25);color:var(--purple)}
+.now-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-size:9px;font-weight:800;color:#041220;background:var(--mint);
+  border-radius:4px;padding:2px 5px;letter-spacing:.2px}
+.next-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-size:9px;font-weight:800;color:#041220;background:var(--blue);
+  border-radius:4px;padding:2px 5px}
+
+/* TOPIC CARDS */
+.tgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.tc{background:var(--s2);border:1px solid var(--line);border-radius:var(--r);
+  padding:15px;transition:.18s;cursor:default}
+.tc:hover{border-color:rgba(62,240,204,.3);transform:translateY(-2px)}
+.tcnum{display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:6px;background:var(--mint-d);
+  color:var(--mint);font-size:10px;font-weight:800;margin-bottom:8px;
+  border:1px solid rgba(62,240,204,.22)}
+.tctitle{font-size:14px;font-weight:700;line-height:1.5;color:var(--text);margin-bottom:6px}
+.tcwhy{font-size:12px;color:var(--t2);line-height:1.75;margin-bottom:9px}
+.tctags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px}
+.tctag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid transparent}
+.tctag.m{background:rgba(62,240,204,.1);border-color:rgba(62,240,204,.22);color:var(--mint)}
+.tctag.b{background:rgba(111,165,248,.1);border-color:rgba(111,165,248,.22);color:var(--blue)}
+.tctag.g{background:rgba(255,204,68,.1);border-color:rgba(255,204,68,.22);color:var(--gold)}
+.tctag.p{background:rgba(176,126,248,.1);border-color:rgba(176,126,248,.22);color:var(--purple)}
+.tcinfo{font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:10px}
+.tcacts{display:flex;gap:5px;flex-wrap:wrap}
+.tcacts button{border:none;border-radius:7px;padding:6px 10px;font-size:11px;
+  font-weight:700;cursor:pointer;transition:.13s}
+.tcacts button:hover{opacity:.8}
+.am{background:rgba(62,240,204,.13);color:var(--mint);border:1px solid rgba(62,240,204,.22)}
+.ab{background:rgba(111,165,248,.13);color:var(--blue);border:1px solid rgba(111,165,248,.22)}
+.ag{background:rgba(255,204,68,.13);color:var(--gold);border:1px solid rgba(255,204,68,.22)}
+.n5{display:flex;gap:7px;margin-top:12px}
+.n5b{flex:1;background:rgba(255,255,255,.045);border:1px solid var(--line);
+  border-radius:9px;padding:10px;font-size:12px;font-weight:700;
+  color:var(--t2);cursor:pointer;transition:.15s;text-align:center}
+.n5b:hover{border-color:var(--line2);color:var(--text)}
+
+/* REPORT */
+.rw{background:var(--s2);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;margin-top:12px}
+.rwtitle{font-size:17px;font-weight:800;color:var(--text);margin-bottom:3px}
+.rwsub{font-size:12px;color:var(--t2);margin-bottom:14px}
+.rb{background:rgba(6,14,26,.55);border:1px solid rgba(255,255,255,.08);
+  border-radius:11px;padding:13px;margin:7px 0}
+.rb h4{font-size:10px;font-weight:800;color:var(--mint);letter-spacing:.6px;
+  text-transform:uppercase;margin-bottom:7px}
+.rb p,.rb li{font-size:13px;color:#c4d9ee;line-height:1.85}
+.rb ul{padding-left:15px}
+.rb li{margin-bottom:3px}
+.rb .rbt{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.lad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:9px 0}
+.ls{background:rgba(6,14,26,.5);border:1px solid rgba(255,255,255,.07);
+  border-radius:9px;padding:11px}
+.ls b{display:block;font-size:10px;color:var(--gold);font-weight:700;
+  letter-spacing:.3px;margin-bottom:4px}
+.ls span{font-size:11px;line-height:1.65;color:#b8d0e8}
+.sbox{background:rgba(255,204,68,.055);border:1px solid rgba(255,204,68,.2);
+  border-radius:11px;padding:13px;margin:7px 0}
+.sbox h4{font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:7px}
+.sbox p{font-size:13px;color:#f0e0b0;line-height:1.88;font-style:italic}
+.ref-box{background:rgba(111,165,248,.05);border:1px solid rgba(111,165,248,.2);
+  border-radius:11px;padding:13px;margin:7px 0}
+.ref-box h4{font-size:10px;font-weight:800;color:var(--blue);letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:7px}
+.ref-box p{font-size:12px;color:#b4cef0;line-height:1.85}
+
+/* LOADING */
+.lbar{height:3px;border-radius:99px;
+  background:linear-gradient(90deg,var(--mint),var(--purple),var(--blue));
+  background-size:200%;animation:lsh 1.2s linear infinite}
+@keyframes lsh{0%{background-position:200%}100%{background-position:-200%}}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(62,240,204,.2);
+  border-top-color:var(--mint);border-radius:50%;animation:sp .65s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  background:rgba(8,18,32,.96);border:1px solid rgba(62,240,204,.35);
+  color:#e8fff9;padding:10px 18px;border-radius:99px;box-shadow:var(--shadow);
+  z-index:999;display:none;font-size:13px;font-weight:700;white-space:nowrap}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(7px);
+  z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.mbox{width:min(800px,96vw);max-height:88vh;overflow:auto;background:#0c1b2d;
+  border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:20px}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.mhead h2{font-size:16px;font-weight:800;color:var(--text)}
+.mclose{background:rgba(255,255,255,.07);border:1px solid var(--line);
+  color:var(--t2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.pbox{width:100%;min-height:160px;background:#06101e;color:#eaf4ff;
+  border:1px solid rgba(62,240,204,.25);border-radius:11px;padding:12px;
+  line-height:1.75;white-space:pre-wrap;font-size:12px;font-family:inherit}
+.copy-area{background:rgba(6,14,26,.7);border:1px solid rgba(255,255,255,.1);
+  border-radius:11px;padding:14px;font-size:12px;color:#c4d8ec;
+  line-height:1.85;white-space:pre-wrap;word-break:break-word;margin:7px 0}
+
+footer{text-align:center;padding:24px;color:var(--t3);font-size:11px;
+  border-top:1px solid var(--line)}
+
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hright{display:none}
+  .studio{grid-template-columns:1fr}
+  .sidebar{position:static;max-height:none}
+  .gg3,.tgrid,.lad{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .nav{padding:0 12px}
+  .pw{padding:32px 3.5vw}
+  .ugrid,.mtabs,.fi-row{grid-template-columns:1fr}
+  .hero{padding:40px 4vw}
+  .hero h1{letter-spacing:-1.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="brand">
+    <div class="bmark">Q</div>
+    <div class="bname">모두의 <b>QUESTA</b> LAB</div>
+  </div>
+  <div class="nav-r">
+    <button class="nb on" id="nb-home" onclick="show('home')">홈</button>
+    <button class="nb" id="nb-grade" onclick="show('grade')">학년 루트</button>
+    <button class="nb" id="nb-studio" onclick="show('studio')">탐구 설계실</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home">
+<div class="hero">
+  <div>
+    <div class="badge"><div class="dot"></div> 학생 상담형 탐구 설계 · Gemini 연동</div>
+    <h1>질문은<br><span class="gm">탐구가 되고</span><br><span class="gg">기록이 된다.</span></h1>
+    <p class="hlead">학생의 작은 의문이 학생부를 바꿉니다.</p>
+    <p class="hdesc">학년·학기별 로드맵 · 대학급 맞춤 탐구 주제 · 질문 진화 구조<br>탐구 보고서 초안 · 세특 문장까지 — 상담 5분이면 완성됩니다.</p>
+    <div class="cta">
+      <button class="btn bm" onclick="show('studio')">탐구 설계 시작 →</button>
+      <button class="btn bg2" onclick="show('grade')">학년별 로드맵</button>
+    </div>
+    <div class="hstats">
+      <div><span class="sn">15개+</span><span class="sl">대학급 분류</span></div>
+      <div><span class="sn">5+5</span><span class="sl">AI 탐구 추천</span></div>
+      <div><span class="sn">완성형</span><span class="sl">보고서 생성</span></div>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="fc fc1">
+      <div class="fl">질문 진화 엔진</div><div class="fbar"></div>
+      <div class="fr">비판적 질문 <span>정말 그럴까?</span></div>
+      <div class="fr">추가 호기심 <span>왜 그럴까?</span></div>
+      <div class="fr">탐구 설계 <span>어떻게 확인할까?</span></div>
+      <div class="fr">보고서 완성 <span>무엇을 남길까?</span></div>
+    </div>
+    <div class="fc fc2">
+      <div class="fl">합격생 탐구 사례</div>
+      <div class="fr">의대 합격 <span>신경전달물질·SSRI 탐구</span></div>
+      <div class="fr">연세대 경제 <span>세계은행·빈곤 정책</span></div>
+      <div class="fr">고려대 물리 <span>통합과학 연계 탐구</span></div>
+    </div>
+    <div class="fc fc3">
+      <div class="fl">학년별 로드맵</div><div class="fbar"></div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.75">현재 학기부터 고3 2학기까지<br>탐구 전략을 단계별로 안내합니다.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- GRADE -->
+<div id="page-grade" class="hidden">
+<div class="pw">
+  <div class="sh"><h2>학년별 상담 루트</h2><p>학년 카드를 클릭하면 탐구 설계실로 이동합니다.</p></div>
+  <div class="gg3">
+    <div class="gc" onclick="selGrade('고1')">
+      <h3>고1</h3><p>교과 개념에서 출발해 호기심을 탐구 질문으로 전환합니다. 질문의 방향성과 교과 연결성을 강조합니다.</p>
+      <span class="chip">교과 기반</span><span class="chip">기초 탐구</span><span class="chip">질문 훈련</span>
+    </div>
+    <div class="gc" onclick="selGrade('고2')">
+      <h3>고2</h3><p>도서·뉴스·교과를 융합하고 실험·설문·데이터 분석·비교 연구 등 탐구방법을 다양화하는 단계입니다.</p>
+      <span class="chip">방법 다양화</span><span class="chip">데이터 분석</span><span class="chip">융합 탐구</span>
+    </div>
+    <div class="gc" onclick="selGrade('고3')">
+      <h3>고3</h3><p>이전 탐구를 바탕으로 전공 적합성과 심화성을 강화하고 보고서와 학생부 기록으로 연결합니다.</p>
+      <span class="chip">전공 심화</span><span class="chip">보고서 완성</span><span class="chip">학생부 연결</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- STUDIO -->
+<div id="page-studio" class="hidden">
+<div class="pw">
+  <div class="sh"><h2>탐구 설계실</h2><p>학생 정보를 입력하면 맞춤 탐구 주제와 완성형 보고서를 생성합니다.</p></div>
+  <div class="studio">
+    <aside class="sidebar">
+      <div class="rtag" id="routeTag">고1 1학기 · 미선택</div>
+
+      <!-- 대학급 -->
+      <div class="field">
+        <span class="slbl">목표 대학급</span>
+        <div class="ugrid" id="univGrid">
+          <button class="ub" data-u="medical"><span class="ubn">의대·치대·한의대</span><span class="ubs">생명윤리 필수</span></button>
+          <button class="ub" data-u="snu"><span class="ubn">서울대</span><span class="ubs">자기주도 탐구</span></button>
+          <button class="ub" data-u="sky"><span class="ubn">연세대·고려대</span><span class="ubs">학업 수월성</span></button>
+          <button class="ub" data-u="top5"><span class="ubn">서강·성균관·한양</span><span class="ubs">전공 적합성</span></button>
+          <button class="ub" data-u="mid"><span class="ubn">중경외시</span><span class="ubs">성장 스토리</span></button>
+          <button class="ub" data-u="inha"><span class="ubn">인하·아주·경기권</span><span class="ubs">수도권 중상위</span></button>
+          <button class="ub" data-u="nat"><span class="ubn">지방거점국립대</span><span class="ubs">경북·부산·전남 등</span></button>
+          <button class="ub" data-u="edu"><span class="ubn">교육대학교</span><span class="ubs">교직·인성 중시</span></button>
+          <button class="ub" data-u="art"><span class="ubn">예체능 계열</span><span class="ubs">실기+생기부</span></button>
+          <button class="ub" data-u="poly"><span class="ubn">전문대·특성화</span><span class="ubs">직무 연계</span></button>
+        </div>
+      </div>
+
+      <div class="sdiv"></div>
+
+      <!-- 학년·학기 -->
+      <div class="fi-row">
+        <div class="field">
+          <label class="fl2">학년</label>
+          <select id="gradeS" class="fi" onchange="updateRoute()">
+            <option>고1</option><option>고2</option><option>고3</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="fl2">학기</label>
+          <select id="semS" class="fi" onchange="updateRoute()">
+            <option value="1">1학기</option><option value="2">2학기</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 학생 정보 -->
+      <div class="field">
+        <label class="fl2">학생 이름 / 학번</label>
+        <input id="sname" class="fi" placeholder="예: 20312 김민서">
+      </div>
+      <div class="field">
+        <label class="fl2">희망 계열</label>
+        <select id="majorCat" class="fi" onchange="updateMajorList()">
+          <option value="">계열 선택</option>
+          <option>의약·보건</option><option>이공·자연</option><option>공학·IT</option>
+          <option>인문·사회</option><option>경영·경제</option><option>법학·행정</option>
+          <option>교육·사범</option><option>예체능·디자인</option><option>농업·환경</option>
+          <option>기타·자유전공</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="fl2">희망 학과 (선택 또는 직접 입력)</label>
+        <select id="majorSel" class="fi" onchange="syncMajorInput()" style="margin-bottom:5px">
+          <option value="">학과 선택</option>
+        </select>
+        <input id="majorInput" class="fi" placeholder="직접 입력 (예: 약학과)">
+      </div>
+
+      <div class="sdiv"></div>
+
+      <!-- 탐구 입력 모드 -->
+      <div class="mtabs">
+        <button class="mt on" data-mode="textbook" onclick="setMode('textbook')">교과 기반</button>
+        <button class="mt" data-mode="book" onclick="setMode('book')">도서 기반</button>
+        <button class="mt" data-mode="keyword" onclick="setMode('keyword')">키워드</button>
+        <button class="mt" data-mode="history" onclick="setMode('history')">이전 탐구</button>
+      </div>
+      <div id="modeFields"></div>
+
+      <div class="sdiv"></div>
+
+      <div class="field">
+        <label class="fl2">학생 성향·관심사</label>
+        <textarea id="interest" class="fi" placeholder="예: 데이터 분석 선호, 발표 잘함, 뉴스·시사 관심, 실험 경험 있음"></textarea>
+      </div>
+
+      <button class="gbtn" id="genBtn" onclick="generateTopics()">✦ 탐구 주제 5개 생성</button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="rp" id="mainPanel">
+      <div id="roadmapArea"></div>
+      <div class="empty" id="emptyState">
+        <div class="eico">✦</div>
+        <p>왼쪽에서 대학급·학년·학기·계열을 선택하면<br>학년별 탐구 로드맵이 표시됩니다.<br><br>주제 생성 버튼을 누르면<br>맞춤 탐구 주제 5개와 보고서를<br>생성할 수 있는 프롬프트를 받습니다.</p>
+      </div>
+      <div id="topicResults"></div>
+      <div id="reportOutput"></div>
+    </main>
+  </div>
+</div>
+</div>
+
+<footer>© 모두의 QUESTA LAB · 질문은 탐구가 되고, 탐구는 기록이 된다.</footer>
+
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="mhead"><h2 id="mTitle"></h2><button class="mclose" onclick="closeModal()">닫기</button></div>
+    <div id="mBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════ */
+const UNIV_GUIDE={
+  medical:"【의대·치대·한의대】 탐구 출발을 의학적 문제의식에서 시작하세요. 생명윤리 쟁점을 필수 포함하고, 논문(PubMed) 1편 이상 분석, '의사로서의 역할'을 결론에 담아야 합니다. 단순 지식 나열이 아닌 임상적 문제 해결 관점이 핵심입니다.",
+  snu:"【서울대】 교과 내용에서 자연스럽게 출발한 자기주도 탐구가 핵심입니다. 탐구 중 실패한 지점과 재시도 과정을 솔직하게 기술하고, 결론을 열린 질문으로 마무리해도 높이 평가됩니다. 전 교과 충실 이수와 교과이수기준 충족이 전제입니다.",
+  sky:"【연세대·고려대】 학업 수월성을 드러내되 동기→과정→발견→결론의 스토리라인이 명확해야 합니다. 고려대는 공동체 기여 관점, 연세대는 학업 수월성과 전공 기초소양을 중점 평가합니다. 수업 내 탐구 연계 흔적이 세특에 명확히 드러나야 합니다.",
+  top5:"【서강·성균관·한양】 전공적합성을 탐구와 직접 연결하고 정량적 요소(통계·그래프)를 포함하세요. 한양대 2026학년도부터 면접 비중 30%로 확대됐으니 탐구 내용을 구두 설명할 수 있게 준비해야 합니다. 성균관대는 의약학 계열 전공적합성을 특히 중시합니다.",
+  mid:"【중경외시(중앙·경희·외대·시립)】 성장 스토리가 핵심입니다. 설문·인터뷰·현장조사 등 직접 수행 가능한 방법이 높은 평가를 받습니다. 교과별 세특과 탐구 주제의 일관성, 3년간 탐구 흐름의 스토리가 중요합니다.",
+  inha:"【인하·아주·경기·인천권 대학】 전공 연계 활동과 교내 탐구 활동의 성실성을 중점 평가합니다. 지역사회 연계 탐구나 실생활 문제 해결형 탐구가 효과적입니다. 교과 성취와 탐구 활동의 균형이 중요합니다.",
+  nat:"【지방거점국립대(경북·부산·전남·충남 등)】 지역사회 문제와 연계된 탐구가 강점이 됩니다. 교과 기반 탐구의 성실성과 전공 기초소양을 드러내는 것이 중요합니다. 학교 내 탐구 활동과 동아리 연계를 적극 활용하세요.",
+  edu:"【교육대학교】 교직 인성과 아이들에 대한 진정한 관심이 핵심입니다. 교육 문제(학습부진·디지털 교육·다문화 교육 등)와 연계된 탐구가 효과적입니다. 공동체 활동과 리더십 경험을 탐구와 연결하세요.",
+  art:"【예체능·디자인 계열】 실기 능력과 함께 예술적 사고력과 비평 능력을 탐구로 보여주세요. 예술 작품 분석·사회적 의미 탐구·디자인 문제 해결 등이 효과적입니다. 지원 분야의 전문성을 이론적으로 뒷받침하는 탐구가 강점이 됩니다.",
+  poly:"【전문대·특성화고·직업계】 직무와 직접 연결되는 실용적 탐구가 강점입니다. 현장 실습 경험이나 산업 트렌드와 연계한 탐구가 효과적입니다."
+};
+
+const MAJOR_MAP={
+  "의약·보건":["의학과","치의학과","한의학과","약학과","간호학과","물리치료학과","임상병리학과","보건관리학과","의공학과","수의학과"],
+  "이공·자연":["생명과학과","화학과","물리학과","수학과","지구과학과","천문학과","통계학과","환경학과","식품영양학과","생화학과"],
+  "공학·IT":["컴퓨터공학과","소프트웨어학과","전기공학과","전자공학과","기계공학과","화학공학과","산업공학과","AI학과","데이터사이언스학과","반도체공학과","건축공학과"],
+  "인문·사회":["국어국문학과","영어영문학과","사학과","철학과","심리학과","사회학과","인류학과","언어학과","문화학과","미디어학과"],
+  "경영·경제":["경영학과","경제학과","회계학과","무역학과","금융학과","마케팅학과","국제통상학과","소비자학과"],
+  "법학·행정":["법학과","행정학과","정치외교학과","국제관계학과","경찰행정학과","사회복지학과"],
+  "교육·사범":["교육학과","초등교육학과","국어교육과","수학교육과","과학교육과","역사교육과","체육교육과","특수교육학과"],
+  "예체능·디자인":["시각디자인학과","산업디자인학과","회화학과","음악학과","체육학과","스포츠과학과","무용학과","연극영화학과","의류학과"],
+  "농업·환경":["농생명학과","식물생명공학과","산림과학과","환경공학과","해양학과","도시계획학과","조경학과"],
+  "기타·자유전공":["자유전공학부","융합학부","창의융합학부"]
+};
+
+const SUBJECT_MAP={
+  "수학":["확률과 통계","미적분Ⅰ","미적분Ⅱ","기하","경제 수학","인공지능 수학","수학Ⅰ","수학Ⅱ"],
+  "과학":["통합과학","물리학Ⅰ","물리학Ⅱ","화학Ⅰ","화학Ⅱ","생명과학Ⅰ","생명과학Ⅱ","지구과학Ⅰ","지구과학Ⅱ","기후변화와 환경생태"],
+  "사회":["통합사회","사회문화","경제","정치와 법","한국지리","세계지리","사회문제 탐구","생활과 윤리","윤리와 사상"],
+  "국어":["독서와 작문","문학","화법과 언어","주제 탐구 독서","언어와 매체"],
+  "영어":["영어 독해와 작문","영어권 문화","진로 영어"],
+  "정보":["정보","인공지능 기초","데이터 과학","소프트웨어와 생활"],
+  "기술·가정":["기술·가정","공학 일반","창의 경영"]
+};
+
+/* 합격생 탐구 사례 DB */
+const SUCCESS_CASES=[
+  {univ:"의대",major:"의학",title:"신경전달물질 SSRI와 세로토닌 수용체 결합 메커니즘 탐구",method:"문헌 분석 + 화학 구조식 탐구",note:"생명과학1 수업 중 신경전달물질 단원에서 출발, 화학세특까지 연결"},
+  {univ:"연세대 경제",major:"경제",title:"세계은행의 빈곤퇴치 정책 효과성 비교 분석",method:"국제기구 보고서 분석 + 통계 데이터",note:"정치와 법 수업 탐구에서 진로(경제정책 컨설턴트)와 연결"},
+  {univ:"고려대 물리",major:"물리",title:"통합과학 전자기파 단원과 실생활 5G 기술 연계 탐구",method:"물리 실험 + 논문 분석",note:"교과 세특에서 자연스럽게 심화 탐구로 연결"},
+  {univ:"서울대 생명",major:"생명과학",title:"CRISPR-Cas9 유전자 가위의 오프타깃 효과와 윤리적 쟁점",method:"논문 분석 + 생명윤리 토론",note:"생명과학2 유전공학 단원에서 출발, 윤리 관점까지 확장"},
+  {univ:"성균관대 의예",major:"의학",title:"항생제 내성균 발생 메커니즘과 파지요법의 가능성",method:"미생물학 문헌 + 통계 분석",note:"독창적인 주제 선정과 과학적 탐구방법이 강점"},
+  {univ:"한양대 컴퓨터공",major:"컴퓨터공학",title:"머신러닝 알고리즘 편향성이 의료 AI 진단에 미치는 영향",method:"Python 시뮬레이션 + 데이터 분석",note:"수학과 정보 교과를 융합한 탐구로 전공적합성 어필"}
+];
+
+const ROADMAP_DATA={
+  "고1-1":{focus:"교과 호기심 발굴 · 기초 탐구 시작",
+    items:[
+      {term:"3~4월",title:"교과 호기심 발굴",desc:"수업 중 '왜?'를 기록. 탐구 씨앗 찾기",tags:[{t:"주제 탐색",c:"g"},{t:"질문 훈련",c:"m"}],cur:true},
+      {term:"5~6월",title:"1차 탐구 설계",desc:"관심 주제 1개 선정 → 문헌 조사 → 보고서 초안",tags:[{t:"문헌 조사",c:"b"},{t:"교과 연결",c:"m"}]},
+      {term:"7월",title:"1학기 마무리",desc:"결과물 정리, 세특 기록으로 연결",tags:[{t:"보고서",c:"g"},{t:"세특 연결",c:"p"}]}
+    ],
+    future:[
+      {term:"고1 2학기",title:"탐구 방법 다양화",desc:"설문·관찰 중 1가지 방법 추가. 도서 기반 심화"},
+      {term:"고2 1학기",title:"심화 주제 선정",desc:"논문 1편 읽기. 데이터·실험 탐구 도전"},
+      {term:"고2 2학기",title:"전공 적합성 강화",desc:"전공 직결 탐구. 완성형 보고서 제출"},
+      {term:"고3 1학기",title:"최종 탐구 완성",desc:"세특 완성. 자소서·면접 소재 확보"}
+    ]},
+  "고1-2":{focus:"탐구 방법 다양화 · 진로 연결",
+    items:[
+      {term:"9~10월",title:"탐구 방법 확장",desc:"설문·관찰·실험 중 1가지 방법으로 데이터 수집",tags:[{t:"설문 설계",c:"b"},{t:"진로 연결",c:"g"}],cur:true},
+      {term:"11~12월",title:"도서 기반 심화",desc:"관련 도서 1권 → 탐구와 연결 → 보고서 완성",tags:[{t:"독서 연계",c:"m"},{t:"비교 분석",c:"b"}]},
+      {term:"1월",title:"2학기 마무리",desc:"1년 탐구 경험 정리 → 고2 방향 설계",tags:[{t:"포트폴리오",c:"g"},{t:"세특 완성",c:"p"}]}
+    ],
+    future:[
+      {term:"고2 1학기",title:"심화 주제 선정",desc:"고1 탐구 연장선. 논문 1편 읽기. 데이터 탐구"},
+      {term:"고2 2학기",title:"전공 적합성 강화",desc:"전공 직결 탐구. 완성형 보고서 제출"},
+      {term:"고3 1학기",title:"최종 탐구 완성",desc:"세특 완성. 자소서·면접 소재 확보"}
+    ]},
+  "고2-1":{focus:"데이터·실험 탐구 심화 · 논문 도전",
+    items:[
+      {term:"3~4월",title:"심화 주제 선정",desc:"고1 탐구 연장 or 새 주제. 논문 1편 읽기",tags:[{t:"논문 탐색",c:"b"},{t:"전공 연결",c:"g"}],cur:true},
+      {term:"5~6월",title:"데이터·실험 탐구",desc:"설문 데이터 수집·분석 or 실험 수행. 그래프 시각화",tags:[{t:"통계 분석",c:"b"},{t:"실험 설계",c:"m"}]},
+      {term:"7월",title:"1학기 보고서",desc:"완성된 보고서 제출. 면접 준비 소재 확보",tags:[{t:"보고서 완성",c:"g"},{t:"세특 기록",c:"p"},{t:"면접 연결",c:"p"}]}
+    ],
+    future:[
+      {term:"고2 2학기",title:"전공 적합성 강화",desc:"전공 직결 탐구. 논문 2편 이상 분석. 한계점 명시"},
+      {term:"고3 1학기",title:"최종 탐구 완성",desc:"최종 보고서 완성. 세특 완성. 자소서 소재"},
+      {term:"고3 2학기",title:"수시·정시 마무리",desc:"면접 대비. 수능 최저 충족"}
+    ]},
+  "고2-2":{focus:"전공 적합성 강화 · 완성형 보고서",
+    items:[
+      {term:"9~10월",title:"전공 심화 탐구",desc:"전공 직결 주제. 논문 2편 이상 분석",tags:[{t:"문헌·논문",c:"b"},{t:"전공 직결",c:"g"}],cur:true},
+      {term:"11~12월",title:"보고서 고도화",desc:"한계점 명시, 후속 연구 방향 제시",tags:[{t:"비교 연구",c:"b"},{t:"결론 도출",c:"m"}]},
+      {term:"1월",title:"수시 방향 설정",desc:"2년 탐구 스토리 정리. 자소서 방향 확정",tags:[{t:"자소서 연결",c:"p"},{t:"진로 확정",c:"g"}]}
+    ],
+    future:[
+      {term:"고3 1학기",title:"최종 탐구 완성",desc:"최종 보고서 완성. 세특 완성. 자소서 소재 확보"},
+      {term:"고3 2학기",title:"수시·정시 마무리",desc:"면접 대비. 추합 준비. 수능 최저 충족"}
+    ]},
+  "고3-1":{focus:"최종 탐구 완성 · 자소서 연결",
+    items:[
+      {term:"3~4월",title:"최종 탐구 주제",desc:"3년 탐구의 완성형. 전공 적합성 최대화",tags:[{t:"전공 심화",c:"g"},{t:"논문 분석",c:"b"},{t:"윤리 관점",c:"m"}],cur:true},
+      {term:"5~6월",title:"보고서 완성",desc:"최종 탐구보고서 완성. 세특 기록 완료",tags:[{t:"최종 보고서",c:"g"},{t:"세특 완성",c:"p"}]},
+      {term:"7~8월",title:"수시 지원 준비",desc:"탐구 → 자소서 → 면접 스토리 연결",tags:[{t:"자기소개서",c:"p"},{t:"면접 대비",c:"p"}]}
+    ],
+    future:[
+      {term:"고3 2학기",title:"수시 면접·정시 대비",desc:"면접 최종 준비. 수능 최저 충족. 추합 대기"}
+    ]},
+  "고3-2":{focus:"수시 면접 · 정시 대비",
+    items:[
+      {term:"9~10월",title:"수시 최저 관리",desc:"수능 최저 학력기준 충족에 집중",tags:[{t:"수능 대비",c:"g"},{t:"세특 마무리",c:"p"}],cur:true},
+      {term:"11월",title:"수능",desc:"3년간 탐구 경험이 탐구 과목에도 연결됨",tags:[{t:"수능 응시",c:"b"},{t:"탐구 영역",c:"m"}]},
+      {term:"12~1월",title:"정시·추합",desc:"최종 결과 대기 및 추가합격 준비",tags:[{t:"정시 지원",c:"p"}]}
+    ],
+    future:[]}
+};
+
+const modeLabels={textbook:'교과 기반',book:'도서 기반',keyword:'키워드',history:'이전 탐구 심화'};
+let curMode='textbook', curUniv='', curTopics=[], topicPage=0, lastData=null, selTopic=null;
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+const PAGES=['home','grade','studio'];
+function show(id){
+  PAGES.forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('hidden',p!==id);
+    const b=document.getElementById('nb-'+p);
+    if(b) b.classList.toggle('on',p===id);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function selGrade(g){
+  document.getElementById('gradeS').value=g;
+  updateRoute(); show('studio');
+}
+
+/* ═══════════════════════════════════════
+   UNIV / ROUTE
+═══════════════════════════════════════ */
+document.getElementById('univGrid').addEventListener('click',e=>{
+  const btn=e.target.closest('.ub');
+  if(!btn) return;
+  document.querySelectorAll('.ub').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  curUniv=btn.dataset.u;
+  updateRoute(); renderRoadmap();
+});
+function updateRoute(){
+  const g=document.getElementById('gradeS').value;
+  const s=document.getElementById('semS').value;
+  const umap={medical:'의대',snu:'서울대',sky:'SKY',top5:'서성한',mid:'중경외시',
+    inha:'경기·인천권',nat:'지방거점',edu:'교육대',art:'예체능',poly:'전문대'};
+  document.getElementById('routeTag').textContent=`${g} ${s}학기 · ${curUniv?umap[curUniv]:'미선택'}`;
+  renderRoadmap();
+}
+
+/* ═══════════════════════════════════════
+   MAJOR DROPDOWN
+═══════════════════════════════════════ */
+function updateMajorList(){
+  const cat=document.getElementById('majorCat').value;
+  const sel=document.getElementById('majorSel');
+  sel.innerHTML='<option value="">학과 선택</option>';
+  if(cat&&MAJOR_MAP[cat]){
+    MAJOR_MAP[cat].forEach(m=>{
+      const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);
+    });
+  }
+  document.getElementById('majorInput').value='';
+}
+function syncMajorInput(){
+  const v=document.getElementById('majorSel').value;
+  if(v) document.getElementById('majorInput').value=v;
+}
+function getMajor(){
+  return document.getElementById('majorInput').value.trim()||
+         document.getElementById('majorSel').value||'미입력';
+}
+
+/* ═══════════════════════════════════════
+   MODE FIELDS
+═══════════════════════════════════════ */
+function setMode(m){
+  curMode=m;
+  document.querySelectorAll('.mt').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+  renderModeFields();
+}
+function renderModeFields(){
+  const el=document.getElementById('modeFields');
+  let h='';
+  if(curMode==='textbook'){
+    h=`<div class="field"><label class="fl2">교과군</label>
+       <select id="subjGroup" class="fi" onchange="fillSubj()">
+         <option>수학</option><option>과학</option><option>사회</option>
+         <option>국어</option><option>영어</option><option>정보</option><option>기술·가정</option>
+       </select></div>
+       <div class="field"><label class="fl2">과목</label><select id="subj" class="fi"></select></div>
+       <div class="field"><label class="fl2">단원·개념</label>
+       <input id="unit" class="fi" placeholder="예: 조건부확률, 산과 염기, 도시열섬, 유전자 발현"></div>`;
+  } else if(curMode==='book'){
+    h=`<div class="field"><label class="fl2">책 제목</label>
+       <input id="bookTitle" class="fi" placeholder="예: 이기적 유전자, 총균쇠, 사피엔스"></div>
+       <div class="field"><label class="fl2">핵심 관점·인상 깊은 내용</label>
+       <input id="bookNote" class="fi" placeholder="예: 환경이 문명 발전에 영향을 준다는 관점"></div>`;
+  } else if(curMode==='keyword'){
+    h=`<div class="field"><label class="fl2">핵심 키워드</label>
+       <input id="keyword" class="fi" placeholder="예: AI 편향, 항생제 내성, 기후변화, 행동경제학"></div>
+       <div class="field"><label class="fl2">학생의 궁금증</label>
+       <textarea id="rawQ" class="fi" placeholder="예: 알고리즘이 정말 사람의 생각을 바꿀 수 있을까? 왜 내성균이 점점 늘어날까?"></textarea></div>`;
+  } else {
+    h=`<div class="field"><label class="fl2">이전 탐구 주제</label>
+       <textarea id="prevTopic" class="fi" placeholder="예: 미세먼지와 호흡기 질환의 관계를 문헌 조사함"></textarea></div>
+       <div class="field"><label class="fl2">아쉬웠던 점 / 더 파고 싶은 점</label>
+       <textarea id="prevLimit" class="fi" placeholder="예: 실제 데이터 분석이 없었고, 단순 조사에 그침. 실험으로 검증하고 싶음"></textarea></div>`;
+  }
+  el.innerHTML=h;
+  if(curMode==='textbook') fillSubj();
+}
+function fillSubj(){
+  const g=document.getElementById('subjGroup').value;
+  document.getElementById('subj').innerHTML=(SUBJECT_MAP[g]||[]).map(s=>`<option>${s}</option>`).join('');
+}
+
+/* ═══════════════════════════════════════
+   INPUT
+═══════════════════════════════════════ */
+function getInput(){
+  const g=document.getElementById('gradeS').value;
+  const sem=document.getElementById('semS').value;
+  const major=getMajor();
+  const interest=document.getElementById('interest').value.trim();
+  const name=document.getElementById('sname').value.trim();
+  let d={g,sem,major,interest,name,mode:curMode,univ:curUniv};
+  if(curMode==='textbook'){d.sg=v('subjGroup');d.subj=v('subj');d.unit=v('unit');d.seed=d.unit||d.subj;}
+  if(curMode==='book'){d.bookTitle=v('bookTitle');d.bookNote=v('bookNote');d.seed=d.bookTitle||d.bookNote;}
+  if(curMode==='keyword'){d.keyword=v('keyword');d.rawQ=v('rawQ');d.seed=d.keyword||d.rawQ;}
+  if(curMode==='history'){d.prevTopic=v('prevTopic');d.prevLimit=v('prevLimit');d.seed=d.prevTopic;}
+  return d;
+}
+function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function safe(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ═══════════════════════════════════════
+   ROADMAP
+═══════════════════════════════════════ */
+function renderRoadmap(){
+  const g=document.getElementById('gradeS').value;
+  const s=document.getElementById('semS').value;
+  const key=`${g}-${s}`;
+  const rm=ROADMAP_DATA[key];
+  const area=document.getElementById('roadmapArea');
+  if(!rm){area.innerHTML='';return;}
+  document.getElementById('emptyState').classList.add('hidden');
+
+  const umap={medical:'의대',snu:'서울대',sky:'SKY',top5:'서성한',mid:'중경외시',
+    inha:'경기권',nat:'지방거점',edu:'교육대',art:'예체능',poly:'전문대'};
+  const ul=curUniv?umap[curUniv]:'';
+
+  const curItems=rm.items.map(item=>`
+    <div class="rmi">
+      <div class="rmterm">${safe(item.term)}</div>
+      <div class="rmb${item.cur?' cur':''}">
+        ${item.cur?'<div class="now-badge">현재</div>':''}
+        <div class="rmbt">${safe(item.title)}</div>
+        <div class="rmdesc">${safe(item.desc)}</div>
+        <div class="rmtags">
+          ${(item.tags||[]).map(t=>`<span class="rtg ${t.c}">${safe(t.t)}</span>`).join('')}
+          ${ul?`<span class="rtg p">${safe(ul)}</span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+
+  const futureItems=(rm.future||[]).map(item=>`
+    <div class="rmi">
+      <div class="rmterm">${safe(item.term)}</div>
+      <div class="rmb future">
+        <div class="next-badge">예정</div>
+        <div class="rmbt">${safe(item.title)}</div>
+        <div class="rmdesc">${safe(item.desc)}</div>
+      </div>
+    </div>`).join('');
+
+  area.innerHTML=`
+    <div class="rm">
+      <div class="rmtitle">📍 ${safe(g)} ${safe(s)}학기 탐구 로드맵 <span>— ${safe(rm.focus)}</span></div>
+      <div class="rmline">${curItems}${futureItems}</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════
+   PROMPT BUILDER
+═══════════════════════════════════════ */
+function buildPrompt(data, page){
+  const umap={medical:'의대·치대·한의대',snu:'서울대',sky:'연세대·고려대',top5:'서강·성균관·한양',
+    mid:'중경외시',inha:'인하·아주·경기권',nat:'지방거점국립대',edu:'교육대학교',art:'예체능',poly:'전문대·특성화'};
+  const ul=umap[data.univ]||'미선택';
+  const mDesc={
+    textbook:`교과 기반 — ${data.sg||''} / ${data.subj||''} / 단원: ${data.unit||''}`,
+    book:`도서 기반 — 책: ${data.bookTitle||''}, 관점: ${data.bookNote||''}`,
+    keyword:`키워드 — ${data.keyword||''}, 궁금증: ${data.rawQ||''}`,
+    history:`이전 탐구 심화 — 이전: ${data.prevTopic||''}, 보완점: ${data.prevLimit||''}`
+  }[data.mode]||'';
+  const pageNote=page>0?`\n※ 이전과 완전히 다른 새로운 주제 5개를 제안해주세요. (${page}번째 추가 요청).`:'';
+
+  const cases=SUCCESS_CASES.filter(c=>
+    (!data.major||c.major===data.major.replace(/학과|전공/g,'')||
+     c.univ.includes(ul.slice(0,3)))).slice(0,2);
+  const caseStr=cases.length?`\n[실제 합격생 탐구 사례 참고]\n${cases.map(c=>`• ${c.univ}: "${c.title}" (${c.method}) — ${c.note}`).join('\n')}`:'';
+
+  return `너는 대한민국 최고의 학생부종합전형 탐구 설계 전문가 겸 입시 컨설턴트다.
+다음 학생 정보를 바탕으로 실제로 수행 가능하고 평가자가 높이 평가할 탐구 주제 5개와 그 중 최우선 주제에 대한 완성형 보고서를 작성하라.${pageNote}
+
+[학생 정보]
+- 학년/학기: ${data.g} ${data.sem}학기
+- 목표 대학급: ${ul}
+- 희망 학과/진로: ${data.major}
+- 학생 성향/관심사: ${data.interest||'미입력'}
+- 탐구 입력 방식: ${mDesc}
+
+[대학급 핵심 요구사항]
+${UNIV_GUIDE[data.univ]||'성실하고 진지한 탐구 활동이 중요합니다.'}
+${caseStr}
+
+═══════════════════════════════════════
+[출력 형식 — 아래 구조를 정확히 따를 것]
+═══════════════════════════════════════
+
+# 🔬 탐구 주제 5개 추천
+
+## 1순위 (최우선 추천)
+**제목:** [구체적이고 범위가 명확한 탐구 주제 제목]
+**추천 이유:** [${ul} 전형에서 유리한 이유, 학생 정보 연관성 — 2~3문장]
+**탐구 방법:** [구체적 방법 — 예: 설문조사(n=50) + SPSS 기술통계 분석 + 선행논문 3편 비교]
+**예상 소요 기간:** [예: 6~8주]
+
+## 2순위
+**제목:** 
+**추천 이유:** 
+**탐구 방법:** 
+
+## 3순위
+**제목:** 
+**추천 이유:** 
+**탐구 방법:** 
+
+## 4순위
+**제목:** 
+**추천 이유:** 
+**탐구 방법:** 
+
+## 5순위
+**제목:** 
+**추천 이유:** 
+**탐구 방법:** 
+
+---
+
+# 📋 1순위 주제 완성형 탐구 보고서
+
+## Ⅰ. 탐구 개요
+- **탐구 주제:**
+- **탐구 기간:**
+- **탐구 방법:**
+- **핵심 탐구 질문:**
+
+## Ⅱ. 탐구 동기
+[교과 수업 내용에서 자연스럽게 출발하는 흐름으로 3~4문장. 학생 진로와 연결]
+
+## Ⅲ. 질문 진화 6단계
+1. **호기심 단계:** 
+2. **1차 질문:** 
+3. **2차 질문 (변수·조건 구체화):** 
+4. **3차 질문 (방법론 설계):** 
+5. **4차 질문 (진로 연계):** 
+6. **최종 탐구 결론 방향:** 
+
+## Ⅳ. 이론적 배경
+[핵심 개념 2~3가지, 교과서 수준 + 심화 설명. 각 개념당 3~5줄]
+
+## Ⅴ. 탐구 방법 및 절차 (상세)
+**1단계:** [구체적 행동 포함. 예: PubMed에서 'antibiotic resistance mechanism' 검색, 최근 5년 논문 중 3편 선정]
+**2단계:** 
+**3단계:** 
+**4단계:** 
+**5단계:** 
+**6단계 (결론 도출):** 
+
+## Ⅵ. 예상 탐구 결과 및 분석
+[구체적 수치·비교·패턴을 포함한 예상 결과 서술. 3~4문장]
+
+## Ⅶ. 결론 및 한계점
+**결론:** [탐구를 통해 도달할 수 있는 결론 — 2~3문장]
+**한계점:** [연구의 한계 2가지 — 고등학생 수준에서 솔직하게]
+**후속 탐구 방향:** [심화 탐구로 이어질 수 있는 방향]
+
+## Ⅷ. 참고 자료
+[추천 도서 2권 + 참고 논문/자료 2~3개 (제목 포함, 실제 존재할 법한 것으로)]
+
+---
+
+# ✏️ 학생부 세부능력특기사항 예시
+
+## 교과 세특 기재 예시 (교사 시점, 500자 내외)
+[자연스러운 교사 서술 형식. 탐구 동기 → 과정 → 결과 → 성장 흐름으로. 구체적 수치·활동 포함]
+
+## 세특 핵심 문장 (면접 답변 소재)
+[학생이 면접에서 활용할 수 있는 핵심 문장 3개]
+
+---
+
+# 💡 ${ul} 전형 합격 전략 조언
+[이 탐구를 바탕으로 ${ul} 전형에서 경쟁력을 높이기 위한 구체적 전략 3~5가지]`;
+}
+
+/* ═══════════════════════════════════════
+   GENERATE
+═══════════════════════════════════════ */
+async function generateTopics(nextPage=false){
+  const data=getInput();
+  if(!data.seed&&!data.interest&&!data.major){
+    toast('진로/학과 또는 탐구 입력 내용을 먼저 작성해주세요.');return;
+  }
+  if(!nextPage){topicPage=0;lastData=data;}
+  else topicPage++;
+
+  const uShort={medical:'의대',snu:'서울대',sky:'SKY',top5:'서성한',mid:'중경외시',
+    inha:'경기권',nat:'지방거점',edu:'교육대',art:'예체능',poly:'전문대'}[data.univ]||'미선택';
+  const prompt=buildPrompt(data, topicPage);
+
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('reportOutput').innerHTML='';
+  document.getElementById('topicResults').innerHTML=`
+    <div style="padding:40px 0;text-align:center">
+      <div class="spin" style="width:24px;height:24px;border-width:2.5px;margin:0 auto 12px"></div>
+      <p style="font-size:14px;color:var(--t2);font-weight:600">탐구 주제와 보고서를 생성 중입니다...</p>
+      <p style="font-size:11px;color:var(--t3);margin-top:5px">${safe(data.g)} ${safe(data.sem)}학기 · ${safe(data.major)} · ${safe(uShort)}</p>
+      <div class="lbar" style="max-width:240px;margin:16px auto 0"></div>
+    </div>`;
+
+  try{
+    const r=await fetch('/api/analyze',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt,system:'너는 대한민국 최고의 학생부종합전형 탐구 설계 전문가다. 요청된 형식을 정확히 지키고, 구체적이고 실용적인 내용으로 작성하라. 탐구 주제는 실제로 고등학생이 수행 가능한 수준으로, 보고서는 완성형으로 작성하라.'})
+    });
+    if(!r.ok) throw new Error('api');
+    const res=await r.json();
+    const result=res.result||'';
+    if(!result) throw new Error('empty');
+    renderResult(result, data);
+  }catch(e){
+    // API 없으면 → 프롬프트 복사 모달 자동 오픈
+    document.getElementById('topicResults').innerHTML='';
+    openPromptModal(prompt, data);
+  }
+}
+
+/* ═══════════════════════════════════════
+   RENDER RESULT
+═══════════════════════════════════════ */
+function renderResult(result, data){
+  // Markdown → HTML 간단 변환
+  const html=mdToHtml(result);
+  document.getElementById('topicResults').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <span style="font-size:13px;color:var(--t2);font-weight:600">탐구 주제 + 완성형 보고서 생성 완료</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="n5b" style="flex:none;padding:7px 12px" onclick="generateTopics(true)">↻ 다른 5개</button>
+        <button class="n5b" style="flex:none;padding:7px 12px;background:var(--mint-d);border-color:rgba(62,240,204,.3);color:var(--mint)" onclick="copyResult()">📋 전체 복사</button>
+      </div>
+    </div>
+    <div class="rw" id="resultContent">${html}</div>`;
+}
+
+function mdToHtml(md){
+  let h=safe(md);
+  // Headers
+  h=h.replace(/^# (.+)$/gm,'<h2 style="font-size:16px;font-weight:800;color:var(--mint);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid rgba(62,240,204,.2)">$1</h2>');
+  h=h.replace(/^## (.+)$/gm,'<h3 style="font-size:14px;font-weight:700;color:var(--blue);margin:14px 0 8px">$1</h3>');
+  h=h.replace(/^### (.+)$/gm,'<h4 style="font-size:13px;font-weight:700;color:var(--gold);margin:10px 0 6px">$1</h4>');
+  // Bold
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--text);font-weight:700">$1</strong>');
+  // HR
+  h=h.replace(/^---$/gm,'<hr style="border:none;border-top:1px solid var(--line);margin:16px 0">');
+  // Numbered list
+  h=h.replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:8px;margin:4px 0"><span style="color:var(--mint);font-weight:700;min-width:18px">$1.</span><span style="color:#c4d9ee;line-height:1.8;font-size:13px">$2</span></div>');
+  // Bullet
+  h=h.replace(/^[•\-\*] (.+)$/gm,'<div style="display:flex;gap:7px;margin:3px 0"><span style="color:var(--t3);margin-top:2px">·</span><span style="color:#c4d9ee;line-height:1.8;font-size:13px">$1</span></div>');
+  // Newline
+  h=h.replace(/\n\n/g,'<div style="height:6px"></div>');
+  h=h.replace(/\n/g,'<br>');
+  return h;
+}
+
+function copyResult(){
+  const el=document.getElementById('resultContent');
+  if(el) copyText(el.innerText);
+}
+
+/* ═══════════════════════════════════════
+   PROMPT MODAL (API 없을 때)
+═══════════════════════════════════════ */
+function openPromptModal(prompt, data){
+  document.getElementById('mTitle').textContent='탐구 설계 프롬프트 — Gemini / ChatGPT에 붙여넣기';
+  document.getElementById('mBody').innerHTML=`
+    <div style="background:rgba(62,240,204,.06);border:1px solid rgba(62,240,204,.2);border-radius:10px;padding:13px;margin-bottom:12px">
+      <p style="font-size:13px;color:var(--mint);font-weight:700;margin-bottom:5px">✦ 사용 방법</p>
+      <p style="font-size:12px;color:var(--t2);line-height:1.85">
+        ① 아래 프롬프트를 복사하세요<br>
+        ② <a href="https://gemini.google.com" target="_blank" style="color:var(--blue)">Gemini</a> 또는 <a href="https://chat.openai.com" target="_blank" style="color:var(--blue)">ChatGPT</a>에 붙여넣고 전송하세요<br>
+        ③ 결과를 복사해 학생에게 안내하거나 학교 폼에 활용하세요<br>
+        ④ <b style="color:var(--gold)">Vercel에 배포하고 GEMINI_API_KEY를 설정하면 이 과정이 자동화됩니다.</b>
+      </p>
+    </div>
+    <p style="font-size:11px;color:var(--t3);margin-bottom:6px">📋 전체 프롬프트 (복사 후 AI에 붙여넣기)</p>
+    <textarea class="pbox" id="promptTxt" style="min-height:220px">${safe(prompt)}</textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn bm" onclick="copyText(document.getElementById('promptTxt').value)">📋 프롬프트 복사</button>
+      <button class="btn" style="background:rgba(111,165,248,.15);border:1px solid rgba(111,165,248,.3);color:var(--blue)" onclick="window.open('https://gemini.google.com/','_blank')">Gemini 열기 →</button>
+      <button class="btn bgh" onclick="window.open('https://chat.openai.com/','_blank')">ChatGPT 열기 →</button>
+    </div>`;
+  document.getElementById('modal').style.display='flex';
+}
+
+/* ═══════════════════════════════════════
+   UTILS
+═══════════════════════════════════════ */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+function copyText(txt){navigator.clipboard.writeText(txt).then(()=>toast('복사되었습니다!')).catch(()=>toast('복사 실패 — 직접 선택해 복사하세요'));}
+function closeModal(){document.getElementById('modal').style.display='none';}
+
+/* ── INIT ── */
+renderModeFields();
+updateRoute();
+</script>
+</body>
+</html>
