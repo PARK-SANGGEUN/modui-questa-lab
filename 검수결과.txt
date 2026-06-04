@@ -1,0 +1,3 @@
+index JS: 0
+api JS: 0
+DB blueprint UI applied
