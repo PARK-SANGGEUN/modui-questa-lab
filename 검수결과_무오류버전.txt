@@ -1,5 +1,0 @@
-index JS: 0
-api JS: 0
-API 500 방지 적용
-내부 DB fallback 적용
-학기별 로드맵 적용
