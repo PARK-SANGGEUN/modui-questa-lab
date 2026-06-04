@@ -1,5 +1,0 @@
-index inline JS syntax: OK
-api/analyze.js syntax: OK
-onclick function references: OK
-api/analyze.js path: OK
-package.json: OK
