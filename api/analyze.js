@@ -105,7 +105,7 @@ ${methodLines || '(없음)'}
 
 [추천 도서 및 독서-탐구 연계]
 ${bookLines || '(없음)'}
-${bookInqLines ? '\n[독서→탐구 연계 DB (책별 탐구주제 사례)]\n' + bookInqLines : ''}
+${''}
 ${mediaLines ? '\n[미디어·오픈데이터 탐구 사례]\n' + mediaLines : ''}
 
 전체 DB: ${localDB.caseCount || 0}건`;
