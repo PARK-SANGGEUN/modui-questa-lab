@@ -1675,15 +1675,16 @@ function searchBookDB(q){
   if(!matched.length){res.style.display="none";return;}
   res.style.display="block";
   res.innerHTML=matched.map((b,i)=>`
-    <div style="padding:8px 10px;border-bottom:1px solid var(--rule2);cursor:pointer" onclick="applyBookEntry(${i}_BKIDX_${JSON.stringify(matched).replace(/"/g,'&quot;')})" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background='#fff'">
+    <div data-bidx="${i}" style="padding:8px 10px;border-bottom:1px solid var(--rule2);cursor:pointer">
       <div style="font-size:12px;font-weight:700;color:var(--ink)">📚 ${esc(b.title)} <span style="font-size:10px;color:var(--ink3)">${esc(b.author||'')}</span></div>
-      <div style="font-size:11px;color:var(--ink3);margin-top:2px">${esc(b.major)} · ${(b.keywords||[]).slice(0,3).join(', ')}</div>
-      <div style="font-size:10px;color:var(--accent);margin-top:2px">💡 ${esc((b.topics||[])[0]||'').slice(0,50)}</div>
-    </div>`).join("").replace(/_BKIDX_[^)]+/g,'');
-  
-  // 클릭 이벤트 재설정
-  res.querySelectorAll('div[onclick]').forEach((el,i)=>{
-    el.onclick=()=>applyBookEntryDirect(matched[i]);
+      <div style="font-size:11px;color:var(--ink3);margin-top:2px">${esc(b.major||'')} · ${(b.keywords||[]).slice(0,3).join(', ')}</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:2px">💡 ${esc(((b.topics||[])[0]||'').slice(0,50))}</div>
+    </div>`).join("");
+  res.querySelectorAll('[data-bidx]').forEach(el=>{
+    const idx=parseInt(el.getAttribute('data-bidx'));
+    el.addEventListener('click',()=>applyBookEntryDirect(matched[idx]));
+    el.addEventListener('mouseenter',()=>el.style.background='#f0f4ff');
+    el.addEventListener('mouseleave',()=>el.style.background='');
   });
 }
 
@@ -1691,12 +1692,8 @@ function applyBookEntryDirect(b){
   // 책 제목 → 히스토리에 기록
   const hist=document.getElementById("history");
   const existing=hist.value;
-  const ref=`[독서 연계] 《${b.title}》 (${b.author||''})
-키워드: ${(b.keywords||[]).join(', ')}
-관련 교과: ${(b.subjects||[]).join(', ')}`;
-  hist.value=existing?existing+"
-
-"+ref:ref;
+  const ref=`[독서 연계] 《${b.title}》 (${b.author||''})\n키워드: ${(b.keywords||[]).join(', ')}\n관련 교과: ${(b.subjects||[]).join(', ')}`;
+  hist.value=existing?existing+"\n\n"+ref:ref;
   
   // 키워드 자동 입력
   const kwEl=document.getElementById("keyword");
