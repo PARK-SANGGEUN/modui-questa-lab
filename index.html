@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QUESTA OS · 탐구 성장 운영체제</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6f2;--surface:#fff;--surface2:#f2f1ed;--surface3:#eae9e4;
+  --ink:#181714;--ink2:#36332c;--ink3:#6b6760;--ink4:#a8a49c;--ink5:#d0cdc6;
+  --rule:rgba(24,23,20,.13);--rule-s:rgba(24,23,20,.26);--rule-l:rgba(24,23,20,.06);
+  --blue:#1847ff;--blue-d:#0e30cc;--blue-bg:#eef1ff;--blue-mid:rgba(24,71,255,.11);
+  --teal:#00a87a;--teal-bg:#e6f8f3;
+  --gold:#b5820a;--gold-bg:#fef8e8;
+  --rose:#c41a3c;--rose-bg:#fff0f3;
+  --violet:#6922bd;--violet-bg:#f4eeff;
+  --cover-bg:#0c0c0b;--cover-ink:#f5f3ee;--cover-rule:rgba(245,243,238,.11);
+  --f-d:'Cormorant Garamond',Georgia,serif;
+  --f-b:'Noto Sans KR',system-ui,sans-serif;
+  --f-m:'JetBrains Mono','Courier New',monospace;
+  --r:6px;--r-md:12px;--r-lg:18px;--r-xl:24px;
+  --sh-xs:0 1px 2px rgba(24,23,20,.05),0 2px 8px rgba(24,23,20,.06);
+  --sh-sm:0 2px 6px rgba(24,23,20,.06),0 8px 24px rgba(24,23,20,.08);
+  --sh-md:0 4px 12px rgba(24,23,20,.07),0 16px 48px rgba(24,23,20,.11);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--f-b);background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input,select,textarea{font-family:var(--f-b)}
+button{cursor:pointer}
+
+/* COVER */
+#cover{
+  min-height:100vh;background:var(--cover-bg);color:var(--cover-ink);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+#cover::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(var(--cover-rule) 1px,transparent 1px),
+    linear-gradient(90deg,var(--cover-rule) 1px,transparent 1px);
+  background-size:72px 72px;z-index:0;
+}
+.c-orb1{position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(24,71,255,.22) 0%,transparent 70%);
+  top:-200px;right:-80px;z-index:0;filter:blur(2px)}
+.c-orb2{position:absolute;width:450px;height:450px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,168,122,.17) 0%,transparent 70%);
+  bottom:-80px;left:80px;z-index:0;filter:blur(2px)}
+.c-topbar{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:26px 64px;border-bottom:1px solid var(--cover-rule);
+}
+.c-brand{display:flex;align-items:center;gap:14px}
+.c-mark{
+  width:42px;height:42px;border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),var(--teal));
+  display:grid;place-items:center;
+  font-family:var(--f-d);font-size:20px;font-weight:700;color:#fff;
+  box-shadow:0 0 0 1px rgba(255,255,255,.15),0 6px 20px rgba(24,71,255,.4);
+}
+.c-brand-name{font-family:var(--f-d);font-size:18px;font-weight:700;color:rgba(245,243,238,.9);letter-spacing:-.01em}
+.c-brand-sub{font-family:var(--f-m);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,243,238,.4);margin-top:2px}
+.c-topright{font-family:var(--f-m);font-size:10px;color:rgba(245,243,238,.3);letter-spacing:.1em}
+.c-main{
+  position:relative;z-index:2;flex:1;
+  display:grid;grid-template-columns:1fr 380px;gap:0;
+  max-width:1260px;width:100%;margin:0 auto;padding:72px 64px;align-items:center;
+}
+.c-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(245,243,238,.06);border:1px solid rgba(245,243,238,.13);
+  border-radius:99px;padding:8px 18px;
+  font-family:var(--f-m);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(245,243,238,.55);margin-bottom:36px;
+}
+.c-eyebrow-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--teal);
+  box-shadow:0 0 8px var(--teal);
+  animation:glow-p 2.4s ease-in-out infinite;
+}
+@keyframes glow-p{0%,100%{box-shadow:0 0 6px var(--teal)}50%{box-shadow:0 0 18px var(--teal)}}
+.c-h1{
+  font-family:var(--f-d);font-size:clamp(66px,8.5vw,112px);
+  font-weight:700;line-height:.93;letter-spacing:-.035em;margin-bottom:34px;color:var(--cover-ink);
+}
+.c-h1 em{font-style:italic;color:transparent;-webkit-text-stroke:1.5px rgba(245,243,238,.3)}
+.c-h1 .hl{background:linear-gradient(95deg,#7ba4ff,#b0ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.c-sub{
+  font-size:17px;font-weight:400;color:rgba(245,243,238,.52);
+  line-height:1.88;max-width:520px;margin-bottom:52px;
+}
+.c-sub strong{color:rgba(245,243,238,.82);font-weight:600}
+.c-stats{
+  display:flex;gap:48px;padding:30px 0;
+  border-top:1px solid var(--cover-rule);border-bottom:1px solid var(--cover-rule);margin-bottom:48px;
+}
+.c-stat-n{font-family:var(--f-d);font-size:46px;font-weight:700;color:#fff;display:block;line-height:1;margin-bottom:7px}
+.c-stat-l{font-family:var(--f-m);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,243,238,.38);display:block}
+.c-cta{display:flex;align-items:center;gap:16px}
+.c-enter-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  background:var(--blue);color:#fff;border:none;border-radius:13px;
+  padding:16px 32px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.02em;
+  box-shadow:0 0 0 1px rgba(24,71,255,.5),0 8px 32px rgba(24,71,255,.42);
+}
+.c-enter-btn:hover{background:var(--blue-d);transform:translateY(-2px);box-shadow:0 0 0 1px rgba(24,71,255,.7),0 12px 48px rgba(24,71,255,.55)}
+.c-enter-btn:hover svg{transform:translateX(4px)}
+.c-enter-btn svg{transition:.2s}
+.c-hint{font-family:var(--f-m);font-size:11px;color:rgba(245,243,238,.28);letter-spacing:.05em}
+.c-right{
+  border-left:1px solid var(--cover-rule);padding-left:44px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.cfc{
+  background:rgba(245,243,238,.05);border:1px solid rgba(245,243,238,.1);
+  border-radius:14px;padding:17px 20px;transition:.2s;
+}
+.cfc:hover{background:rgba(245,243,238,.09);border-color:rgba(245,243,238,.18)}
+.cfc-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.cfc-ico{font-size:16px;width:26px;text-align:center;flex-shrink:0}
+.cfc-title{font-size:13px;font-weight:700;color:rgba(245,243,238,.88)}
+.cfc-num{
+  margin-left:auto;font-family:var(--f-m);font-size:10px;font-weight:700;
+  color:var(--teal);background:rgba(0,168,122,.12);border:1px solid rgba(0,168,122,.25);
+  border-radius:5px;padding:2px 7px;
+}
+.cfc-desc{font-size:11.5px;color:rgba(245,243,238,.38);line-height:1.65}
+.c-bottom{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 64px;border-top:1px solid var(--cover-rule);
+}
+.c-bottom-l{font-family:var(--f-m);font-size:10px;color:rgba(245,243,238,.25);letter-spacing:.1em;text-transform:uppercase}
+.c-tags{display:flex;gap:7px}
+.c-tag{
+  font-family:var(--f-m);font-size:9.5px;font-weight:500;
+  color:rgba(245,243,238,.38);background:rgba(245,243,238,.06);
+  border:1px solid rgba(245,243,238,.1);border-radius:5px;padding:4px 9px;letter-spacing:.06em;
+}
+@media(max-width:1100px){.c-main{grid-template-columns:1fr}.c-right{border-left:none;border-top:1px solid var(--cover-rule);padding-left:0;padding-top:32px;margin-top:32px}}
+@media(max-width:600px){.c-main{padding:40px 28px}.c-topbar,.c-bottom{padding:18px 28px}.c-stats{gap:28px}}
+
+/* ── APP ── */
+#app{display:none}
+.hdr{position:sticky;top:0;z-index:60;background:rgba(247,246,242,.94);backdrop-filter:blur(24px);border-bottom:1.5px solid var(--rule)}
+.hdr-in{max-width:1480px;margin:0 auto;padding:0 30px;height:58px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.hdr-brand{display:flex;align-items:center;gap:11px}
+.hdr-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--teal));display:grid;place-items:center;font-family:var(--f-d);font-size:15px;font-weight:700;color:#fff}
+.hdr-name{font-family:var(--f-d);font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.hdr-name span{font-family:var(--f-m);font-size:9px;color:var(--ink4);letter-spacing:.07em;vertical-align:middle;margin-left:5px}
+.hdr-acts{display:flex;gap:7px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:var(--r-md);padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 2px 10px rgba(24,71,255,.26)}
+.btn-primary:hover{background:var(--blue-d);transform:translateY(-1px)}
+.btn-outline{background:var(--surface);color:var(--ink2);border:1.5px solid var(--rule)}
+.btn-outline:hover{border-color:var(--rule-s);background:var(--surface2)}
+.btn-teal{background:var(--teal);color:#fff;box-shadow:0 2px 10px rgba(0,168,122,.26)}
+.btn-teal:hover{opacity:.88;transform:translateY(-1px)}
+.btn-lg{padding:12px 22px;font-size:14px;border-radius:var(--r-lg)}
+.wrap{max-width:1480px;margin:0 auto;padding:26px 30px 100px}
+
+/* HERO BAR */
+.hero-bar{border:1.5px solid var(--rule);border-radius:var(--r-xl);overflow:hidden;margin-bottom:18px;display:grid;grid-template-columns:1.1fr 1fr;background:var(--surface);box-shadow:var(--sh-sm)}
+.hb-l{padding:34px 40px;border-right:1.5px solid var(--rule);background:linear-gradient(140deg,#0c0c0b,#171512);color:#f5f3ee;position:relative;overflow:hidden}
+.hb-l::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:52px 52px}
+.hb-lc{position:relative;z-index:1}
+.hb-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(245,243,238,.07);border:1px solid rgba(245,243,238,.13);border-radius:99px;padding:6px 13px;font-family:var(--f-m);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,243,238,.5);margin-bottom:14px}
+.hb-dot{width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.hb-l h2{font-family:var(--f-d);font-size:clamp(24px,3vw,36px);font-weight:700;line-height:1.05;letter-spacing:-.04em;color:#f5f3ee;margin-bottom:11px}
+.hb-l p{font-size:13px;color:rgba(245,243,238,.48);line-height:1.8;max-width:380px}
+.hb-r{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hm{border:1.5px solid var(--rule);border-radius:var(--r-lg);padding:15px;background:var(--surface)}
+.hm-n{font-family:var(--f-d);font-size:26px;font-weight:700;color:var(--blue);display:block;line-height:1;margin-bottom:4px}
+.hm b{font-size:12px;font-weight:700;color:var(--ink);display:block;margin-bottom:2px}
+.hm span{font-size:11px;color:var(--ink3);line-height:1.5}
+
+/* CASE SECTION */
+.case-sec{border:1.5px solid var(--rule);border-radius:var(--r-xl);overflow:hidden;background:var(--surface);margin-bottom:18px;box-shadow:var(--sh-xs)}
+.case-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:15px 22px;border-bottom:1.5px solid var(--rule);background:var(--surface2)}
+.case-hd h3{font-family:var(--f-d);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.case-hd p{font-size:11px;color:var(--ink3);margin-top:2px}
+.case-sr{display:flex;align-items:center;gap:8px}
+.case-input{border:1.5px solid var(--rule);border-radius:var(--r-md);padding:7px 12px;font-size:12px;width:200px;background:var(--surface);color:var(--ink);transition:.15s}
+.case-input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(24,71,255,.1)}
+.case-cnt{font-family:var(--f-m);font-size:11px;color:var(--ink4);white-space:nowrap}
+.case-tabs{display:flex;gap:5px;flex-wrap:wrap;padding:10px 22px;border-bottom:1.5px solid var(--rule-l)}
+.ctab{border:1.5px solid var(--rule);border-radius:var(--r);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--ink3);transition:.15s;white-space:nowrap}
+.ctab:hover{border-color:var(--ink3);color:var(--ink)}
+.ctab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;padding:14px 22px;max-height:440px;overflow-y:auto}
+.case-grid::-webkit-scrollbar{width:4px}
+.case-grid::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px}
+.cc{border:1.5px solid var(--rule);border-radius:var(--r-lg);padding:14px;cursor:pointer;transition:.18s;background:var(--surface);position:relative}
+.cc:hover{border-color:var(--blue);box-shadow:var(--sh-sm);transform:translateY(-2px)}
+.cc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cc-univ{font-size:10px;font-weight:800;color:#fff;background:var(--blue);border-radius:4px;padding:2px 7px}
+.cc-major{font-size:10px;font-weight:700;color:var(--violet);background:var(--violet-bg);border-radius:4px;padding:2px 7px}
+.cc-title{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.45;margin-bottom:6px}
+.cc-method{font-size:11px;color:var(--ink3);margin-bottom:7px;line-height:1.5}
+.cc-point{display:inline-block;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-bg);border-radius:4px;padding:2px 7px}
+.cc-apply{position:absolute;top:10px;right:10px;background:var(--surface2);border:1.5px solid var(--rule);color:var(--ink3);border-radius:var(--r);padding:4px 9px;font-size:10px;font-weight:700;cursor:pointer;transition:.15s}
+.cc-apply:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* UNIV SECTION */
+.univ-sec{border:1.5px solid var(--rule);border-radius:var(--r-xl);overflow:hidden;background:var(--surface);margin-bottom:18px;box-shadow:var(--sh-xs)}
+.univ-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1.5px solid var(--rule);background:var(--surface2)}
+.univ-hd h3{font-family:var(--f-d);font-size:15px;font-weight:700;color:var(--ink)}
+.univ-hd p{font-size:11px;color:var(--ink3);margin-top:2px}
+.univ-sel-lbl{font-family:var(--f-m);font-size:11px;font-weight:700;color:var(--blue)}
+.univ-body{padding:15px 22px}
+.ug{margin-bottom:13px}
+.ug:last-child{margin-bottom:0}
+.ug-lbl{display:flex;align-items:center;gap:8px;font-family:var(--f-m);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink4);margin-bottom:7px}
+.ug-lbl::after{content:'';flex:1;height:1px;background:var(--rule-l)}
+.ug-row{display:flex;gap:6px;flex-wrap:wrap}
+.ubtn{border:1.5px solid var(--rule);border-radius:var(--r-md);padding:7px 12px;font-size:11.5px;font-weight:600;cursor:pointer;background:var(--surface);color:var(--ink2);transition:.15s;line-height:1.3;text-align:left}
+.ubtn small{display:block;font-size:9.5px;color:var(--ink4);font-weight:400;margin-top:1px}
+.ubtn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.ubtn.sel{background:linear-gradient(135deg,var(--blue-bg),#edfaf6);border-color:var(--blue);border-width:2px;color:var(--blue);font-weight:700;box-shadow:0 0 0 3px rgba(24,71,255,.08)}
+
+/* FORM */
+.form-sec{border:1.5px solid var(--rule);border-radius:var(--r-xl);overflow:hidden;background:var(--surface);margin-bottom:18px;box-shadow:var(--sh-xs)}
+.form-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;padding:16px 22px;border-bottom:1.5px solid var(--rule);background:linear-gradient(135deg,var(--surface2),#edfaf6)}
+.form-hd h3{font-family:var(--f-d);font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.form-hd p{font-size:11.5px;color:var(--ink3);margin-top:3px}
+.form-body{padding:18px 22px}
+.fg{display:grid;gap:11px;margin-bottom:11px}
+.fg4{grid-template-columns:repeat(4,1fr)}
+.fg2{grid-template-columns:1fr 1fr}
+.full{grid-column:1/-1}
+.fl{display:flex;flex-direction:column;gap:5px}
+.fl label{font-family:var(--f-m);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.fi{width:100%;border:1.5px solid var(--rule);border-radius:var(--r-md);background:var(--surface);padding:9px 12px;font-size:13px;color:var(--ink);transition:.15s;-webkit-appearance:none}
+.fi:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(24,71,255,.1)}
+.fi::placeholder{color:var(--ink5)}
+.fi option{background:var(--surface);color:var(--ink)}
+textarea.fi{min-height:70px;resize:vertical;line-height:1.6}
+.s-box{margin:0 22px 16px;border-radius:var(--r-md);padding:10px 14px;font-size:12px;line-height:1.65;border:1.5px solid}
+.s-info{background:#fffbeb;border-color:#f5d97a;color:#7a5500}
+.s-load{background:var(--blue-bg);border-color:#bfcffe;color:#1338c0;font-weight:600;display:none}
+.s-load.on{display:block}
+.s-err{background:var(--rose-bg);border-color:#fdb5c3;color:#9b1230;display:none}
+.s-err.on{display:block}
+
+/* TOPICS */
+.topic-sec{margin-bottom:20px}
+.topic-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:13px}
+.sec-h2{font-family:var(--f-d);font-size:21px;font-weight:700;color:var(--ink);letter-spacing:-.03em;margin-bottom:3px}
+.sec-p{font-size:12px;color:var(--ink3);line-height:1.7}
+.topic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.tc{border:1.5px solid var(--rule);border-radius:var(--r-xl);padding:17px;min-height:488px;display:flex;flex-direction:column;gap:10px;background:var(--surface);cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--teal));opacity:0;transition:.2s}
+.tc:hover,.tc.sel{border-color:var(--blue);box-shadow:var(--sh-md);transform:translateY(-4px)}
+.tc:hover::before,.tc.sel::before{opacity:1}
+.tc.sel{border-width:2px}
+.tc-rank{width:27px;height:27px;border-radius:var(--r);background:var(--ink);display:grid;place-items:center;font-family:var(--f-m);font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.tc-type{display:inline-flex;align-self:flex-start;font-family:var(--f-m);font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(24,71,255,.2)}
+.tc h3{font-family:var(--f-d);font-size:15px;font-weight:700;line-height:1.38;color:var(--ink);letter-spacing:-.02em}
+.tc-q{font-size:12px;color:var(--blue);font-weight:600;line-height:1.6;font-style:italic}
+.tc-body{font-size:12px;color:var(--ink3);line-height:1.72}
+.tc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:7px;border-top:1px solid var(--rule-l)}
+.tg{font-family:var(--f-m);font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:4px;border:1px solid}
+.tg-g{background:var(--teal-bg);color:var(--teal);border-color:rgba(0,168,122,.24)}
+.tg-b{background:var(--blue-bg);color:var(--blue);border-color:rgba(24,71,255,.2)}
+.tg-v{background:var(--violet-bg);color:var(--violet);border-color:rgba(105,34,189,.2)}
+
+/* RESULT BOX */
+.rbox{display:none;border:1.5px solid var(--rule);border-radius:var(--r-xl);overflow:hidden;background:var(--surface);margin-bottom:18px;box-shadow:var(--sh-sm)}
+.rbox.on{display:block}
+.rbox-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:17px 24px;border-bottom:1.5px solid var(--rule);background:linear-gradient(135deg,var(--surface2),var(--surface))}
+.rbox-hd h2{font-family:var(--f-d);font-size:19px;font-weight:700;color:var(--ink);letter-spacing:-.03em}
+.rbox-body{padding:22px 24px}
+
+/* ROADMAP */
+.rm-2c{display:grid;grid-template-columns:1fr 295px;gap:18px;margin-bottom:20px}
+.rm-meta{background:linear-gradient(135deg,var(--blue-bg),var(--teal-bg));border:1.5px solid var(--rule);border-radius:var(--r-lg);padding:17px}
+.rm-lbl{font-family:var(--f-m);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;margin-top:13px}
+.rm-lbl:first-child{margin-top:0}
+.rm-meta p{font-size:12.5px;color:var(--ink2);line-height:1.72}
+.evid-g{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:20px}
+.evid-c{border:1.5px solid var(--rule);border-radius:var(--r-lg);padding:13px;background:var(--surface)}
+.evid-c h4{font-family:var(--f-m);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:7px}
+.evid-c p{font-size:12.5px;color:var(--ink2);line-height:1.72}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:grid;grid-template-columns:70px 1fr;gap:16px;position:relative}
+.step-con{position:absolute;left:34px;top:64px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--rule),transparent)}
+.step:last-child .step-con{display:none}
+.step-no{border-radius:var(--r-md);background:var(--ink);color:#fff;display:grid;place-items:center;min-height:60px;font-family:var(--f-m);font-size:11px;font-weight:700;align-self:start;margin-top:10px;text-align:center;line-height:1.3}
+.step-c{padding:10px 0 22px}
+.step-c h3{font-family:var(--f-d);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:7px;letter-spacing:-.02em}
+.step-c p{font-size:13px;color:var(--ink2);line-height:1.78}
+.step-tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.stool{font-family:var(--f-m);font-size:10px;font-weight:500;padding:4px 9px;border-radius:5px;background:var(--surface2);color:var(--ink2);border:1.5px solid var(--rule)}
+.rm-acts{display:flex;gap:8px;flex-wrap:wrap;padding:13px 24px;border-top:1.5px solid var(--rule-l);background:var(--surface2)}
+.report-doc{white-space:pre-wrap;font-family:var(--f-b);font-size:13.5px;line-height:1.9;color:var(--ink2);border:1.5px solid var(--rule);border-radius:var(--r-lg);padding:26px;background:var(--surface)}
+.src-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.src-item{border:1.5px solid var(--rule);border-radius:var(--r-md);padding:8px 13px;background:var(--surface)}
+.src-item a{color:var(--blue);font-weight:600;text-decoration:none;font-size:12.5px}
+.src-item a:hover{text-decoration:underline}
+
+/* PRINT */
+@media print{
+  #cover,.hdr,.case-sec,.univ-sec,.form-sec,.topic-sec,.hdr-acts,.rm-acts{display:none!important}
+  #app{display:block!important}
+  body{background:#fff}
+  .wrap{padding:0}
+  .rbox{display:block!important;box-shadow:none;border:1px solid #ccc;margin-bottom:16px;page-break-inside:avoid}
+  .rbox-hd{background:#f8f8f8;border-bottom:1px solid #ddd}
+  .rbox-hd h2{color:#000}
+  .step-no{background:#333}
+  .report-doc,.evid-c,.rm-meta{border:1px solid #ddd;background:#fff}
+  @page{margin:18mm 16mm}
+}
+@media(max-width:1200px){
+  .hero-bar,.rm-2c{grid-template-columns:1fr}
+  .hb-r{display:none}
+  .topic-grid{grid-template-columns:repeat(2,1fr)}
+  .fg4{grid-template-columns:repeat(2,1fr)}
+  .evid-g{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .topic-grid{grid-column:1fr}
+  .hdr-in,.wrap{padding-left:16px;padding-right:16px}
+  .fg2{grid-template-columns:1fr}
+  .ug-row{gap:5px}
+}
+</style>
+
+<!-- COVER -->
+<div id="cover">
+  <div class="c-orb1"></div><div class="c-orb2"></div>
+  <div class="c-topbar">
+    <div class="c-brand">
+      <div class="c-mark">Q</div>
+      <div><div class="c-brand-name">QUESTA OS</div><div class="c-brand-sub">탐구 성장 운영체제</div></div>
+    </div>
+    <span class="c-topright">2022 개정 교육과정 기반 · v4.0</span>
+  </div>
+  <div class="c-main">
+    <div>
+      <div class="c-eyebrow"><span class="c-eyebrow-dot"></span>합격사례 DB 250건 · Gemini AI · 2022 개정</div>
+      <h1 class="c-h1">질문이<br><span class="hl">합격을</span><br><em>만든다.</em></h1>
+      <p class="c-sub">
+        <strong>2가지 탐구 경로</strong> — 합격사례 DB에서 출발하거나, 기존 탐구를 심화하거나.<br>
+        목표 대학 수준에 맞는 주제 5개 + 단계별 로드맵 + 완성형 보고서.
+      </p>
+      <div class="c-stats">
+        <div><span class="c-stat-n">250+</span><span class="c-stat-l">합격사례 DB</span></div>
+        <div><span class="c-stat-n">40+</span><span class="c-stat-l">대학급 분류</span></div>
+        <div><span class="c-stat-n">2경로</span><span class="c-stat-l">탐구 설계 방식</span></div>
+      </div>
+      <div class="c-cta">
+        <button class="c-enter-btn" onclick="enterApp()">
+          탐구 설계 시작하기
+          <svg width="15" height="15" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="c-hint">경로 선택 → 대학 선택 → 주제 생성 → 보고서</span>
+      </div>
+    </div>
+    <div class="c-right">
+      <div class="cfc"><div class="cfc-top"><span class="cfc-ico">🏆</span><span class="cfc-title">경로 A — 합격사례 DB</span><span class="cfc-num">250건+</span></div><p class="cfc-desc">실제 합격생 탐구주제를 대학·학과별로 검색하고, 그 구조를 응용해 내 탐구를 설계합니다.</p></div>
+      <div class="cfc"><div class="cfc-top"><span class="cfc-ico">📚</span><span class="cfc-title">경로 B — 기존 탐구 심화</span><span class="cfc-num">맞춤형</span></div><p class="cfc-desc">이미 진행한 탐구를 입력하면 Gemini가 심화·확장 방향을 분석해 보고서로 발전시킵니다.</p></div>
+      <div class="cfc"><div class="cfc-top"><span class="cfc-ico">🎯</span><span class="cfc-title">목표 대학 맞춤</span><span class="cfc-num">40단계</span></div><p class="cfc-desc">서울대·SKY·과기원·교대·지방거점까지 각 대학이 요구하는 탐구 수준으로 최적화됩니다.</p></div>
+      <div class="cfc"><div class="cfc-top"><span class="cfc-ico">📄</span><span class="cfc-title">완성형 보고서 출력</span><span class="cfc-num">세특 연결</span></div><p class="cfc-desc">질문 진화 → 탐구 설계 → 결과 → 세특 기재 예시 + 면접 소재까지 출력 즉시 활용 가능.</p></div>
+    </div>
+  </div>
+  <div class="c-bottom">
+    <span class="c-bottom-l">QUESTA OS · 2022 개정 교육과정 기반 · Gemini AI</span>
+    <div class="c-tags"><span class="c-tag">Gemini AI</span><span class="c-tag">2022 개정</span><span class="c-tag">250건 DB</span><span class="c-tag">40단계</span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<header class="hdr"><div class="hdr-in">
+  <div class="hdr-brand"><div class="hdr-mark">Q</div><div class="hdr-name">QUESTA OS<span>v4.0</span></div></div>
+  <div class="hdr-acts">
+    <button class="btn btn-outline" onclick="window.print()">🖨 출력</button>
+    <button class="btn btn-outline" onclick="copyReport()">📋 보고서 복사</button>
+    <button class="btn btn-primary btn-lg" onclick="generate()">✦ 탐구주제 생성</button>
+  </div>
+</div></header>
+
+<div class="nav-tabs">
+  <button class="ntab on" onclick="switchPage('setup')">① 탐구 설계</button>
+  <button class="ntab" onclick="switchPage('topics')">② 추천 주제 5개</button>
+  <button class="ntab" onclick="switchPage('roadmap')">③ 로드맵</button>
+  <button class="ntab" onclick="switchPage('report')">④ 보고서</button>
+</div>
+
+<main class="wrap">
+
+<!-- ══ PAGE 1: 탐구 설계 ══ -->
+<div class="page on" id="page-setup">
+
+  <!-- 경로 선택 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><div><h3>탐구 경로 선택</h3><p>먼저 어떤 방식으로 탐구를 설계할지 선택하세요</p></div></div>
+    <div class="card-body">
+      <div class="path-chooser">
+        <div class="path-card sel" id="pathA" onclick="selectPath('A')">
+          <div class="path-ico">🏆</div>
+          <div class="path-title">경로 A — 합격사례 DB 기반</div>
+          <p class="path-desc">실제 합격생 탐구주제를 참고해서 설계합니다.<br>아래에서 사례를 선택하면 그 구조를 응용해 주제가 생성됩니다.</p>
+          <span class="path-badge path-badge-a">추천 — 탐구 아이디어가 없을 때</span>
+        </div>
+        <div class="path-card teal-path" id="pathB" onclick="selectPath('B')">
+          <div class="path-ico">📚</div>
+          <div class="path-title">경로 B — 기존 탐구 심화</div>
+          <p class="path-desc">이미 진행한 탐구가 있다면 이 경로를 선택하세요.<br>'이전 탐구 내용'에 입력하면 Gemini가 심화·발전 방향을 설계합니다.</p>
+          <span class="path-badge path-badge-b">기존 탐구를 보고서로 발전시킬 때</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 합격사례 DB (경로 A) -->
+  <div class="card" id="caseSection" style="margin-bottom:14px">
+    <div class="card-hd">
+      <div><h3>🏆 합격사례 DB — 대학·학과별 탐구주제 250건</h3><p>클릭해서 선택하면 경로 A 주제 생성에 자동 반영됩니다</p></div>
+      <div class="case-sr"><input id="caseSearch" class="case-si" placeholder="키워드 검색..." oninput="filterCases()"><span id="caseCount" class="case-cnt">—건</span></div>
+    </div>
+    <div class="case-tabs" id="caseTabs"></div>
+    <div class="chosen-bar" id="chosenBar"><span>✓ 선택된 사례:</span><span class="chosen-bar-title" id="chosenTitle"></span><button class="chosen-bar-x" onclick="clearChosen()">✕</button></div>
+    <div class="case-grid" id="caseGrid"></div>
+  </div>
+
+  <!-- 대학급 선택 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd">
+      <div><h3>목표 대학 선택</h3><p>선택한 대학 수준에 맞게 탐구 깊이·방법·평가 관점이 달라집니다</p></div>
+      <span id="univSelLbl" style="font-family:var(--f-m);font-size:11px;font-weight:700;color:var(--blue)"></span>
+    </div>
+    <div class="univ-body" id="univGroups"></div>
+    <div class="univ-effect" id="univEffect" style="display:none"></div>
+  </div>
+
+  <!-- 학생 프로필 폼 -->
+  <div class="form-sec">
+    <div class="form-hd">
+      <div><h3>학생 프로필</h3><p>계열 → 학과 → 2022 과목 → 키워드 순서로 입력하세요</p></div>
+      <button class="btn btn-primary btn-lg" onclick="generate()">✦ 탐구주제 5개 생성</button>
+    </div>
+    <div class="form-body">
+      <div class="fg fg4" style="margin-bottom:10px">
+        <div class="fl"><label>계열</label><select id="track" class="fi" onchange="updateMajors()"><option>의약보건</option><option>공학·AI</option><option>자연·수학</option><option>사회과학·행정</option><option>경제·경영</option><option>교육</option><option>인문·어문·미디어</option><option>예체능</option></select></div>
+        <div class="fl"><label>세부학과</label><select id="majorDetail" class="fi"></select></div>
+        <div class="fl"><label>2022 과목군</label><select id="subjectGroup" class="fi" onchange="updateSubjects()"><option>수학</option><option>영어</option><option>사회</option><option>과학</option><option>정보·공학</option><option>예술·체육</option><option>교양·융합</option></select></div>
+        <div class="fl"><label>2022 개정 과목</label><select id="subject" class="fi"></select></div>
+      </div>
+      <div class="fg fg2">
+        <div class="fl"><label>관심 키워드</label><input id="keyword" class="fi" placeholder="예: 의료 AI, 기후변화, 경찰, 항공, 스포츠 데이터"></div>
+        <div class="fl"><label>기존 활동·독서·경험</label><input id="history" class="fi" placeholder="예: 화학실험부, 관련 도서 3권, 설문 경험"></div>
+      </div>
+      <div id="prevBox" style="display:none;margin-top:10px">
+        <div class="fl full">
+          <label>이전 탐구 내용 <span style="color:var(--teal);font-style:italic">(경로 B: 이 탐구를 심화합니다)</span></label>
+          <textarea id="prevResearch" class="fi" placeholder="예: 고1 때 미세먼지와 호흡기 질환의 관계를 주제로 문헌 조사를 했습니다. 단순 상관관계만 확인했고, 지역별 비교나 원인 분석이 부족했습니다. 이 부분을 더 발전시키고 싶습니다."></textarea>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 20px 16px">
+      <div class="s-box s-info"><b>안내:</b> Gemini AI가 목표 대학 수준과 탐구 경로에 맞는 주제를 생성합니다. 템플릿·중복 주제는 자동 차단됩니다.</div>
+      <div id="loading" class="s-box s-load" style="margin-top:8px">⟳ Gemini가 탐구 주제를 생성 중입니다... (20~40초 소요)</div>
+      <div id="error" class="s-box s-err" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: 추천 주제 ══ -->
+<div class="page" id="page-topics">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px">
+    <div><p class="ph">추천 탐구 주제 5개</p><p class="ps">각 주제는 탐구방식·질문방향·산출물이 모두 다릅니다 — 카드를 클릭해 로드맵과 보고서를 생성하세요</p></div>
+    <button class="btn btn-ghost" onclick="generate()">↻ 다시 추천</button>
+  </div>
+  <div id="topics" class="topic-grid"></div>
+  <div id="srcArea" style="margin-top:12px"></div>
+</div>
+
+<!-- ══ PAGE 3: 로드맵 ══ -->
+<div class="page" id="page-roadmap">
+  <div class="rbox on">
+    <div class="rbox-hd"><h2>📐 탐구 로드맵</h2><div id="rmBtns"></div></div>
+    <div class="rbox-body" id="roadmapBody"><p style="color:var(--ink3);font-size:13px">← ② 추천 주제에서 카드를 클릭하면 로드맵이 여기에 표시됩니다.</p></div>
+    <div class="rm-acts" id="rmActs" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE 4: 보고서 ══ -->
+<div class="page" id="page-report">
+  <div class="rbox on">
+    <div class="rbox-hd">
+      <h2>📝 탐구 보고서 초안</h2>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-primary" onclick="copyReport()">📋 전체 복사</button>
+        <button class="btn btn-ghost" onclick="window.print()">🖨 출력 / PDF</button>
+      </div>
+    </div>
+    <div class="rbox-body"><div id="report" class="report-doc">③ 로드맵 페이지에서 보고서 생성 버튼을 클릭하세요.</div></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+/* ════ DB — 합격사례 ════ */
+const DB=[
+{u:"서울대",m:"의예과",k:"신경·약학",t:"세로토닌 수용체 아형별 SSRI 결합 친화도 비교와 항우울 효과 차이",method:"논문 메타분석+화학구조 도해",pt:"교과→독서→심화 연결 구조"},
+{u:"서울대",m:"의예과",k:"유전·윤리",t:"CRISPR-Cas9 오프타깃 돌연변이 빈도의 통계 분석과 임상 적용 한계",method:"논문 분석+생명윤리 고찰",pt:"좁고 깊은 탐구+오차 분석+윤리"},
+{u:"서울대",m:"컴퓨터공학",k:"AI·편향",t:"콘텐츠 추천 알고리즘의 인구통계학적 편향성 측정 및 공정성 지표 비교",method:"Python 분석+공정성 메트릭",pt:"수학적 모델링+사회적 관점 융합"},
+{u:"서울대",m:"경제학",k:"정책·통계",t:"최저임금 인상이 소규모 자영업 고용 탄력성에 미치는 지역별 차별적 효과",method:"공공데이터+회귀모형",pt:"데이터 근거+정책 제언"},
+{u:"서울대",m:"사회학",k:"심리·SNS",t:"청소년 SNS 사용시간과 자아존중감 상관관계: 젠더별 차이 비교 분석",method:"설문(n=120)+SPSS",pt:"변수 통제+분석틀 구체화"},
+{u:"서울대",m:"생명과학",k:"생태·환경",t:"미세플라스틱 농도 증가에 따른 어류 산란율과 부화율 변화의 농도-반응 곡선",method:"실험 설계+오차 분석",pt:"실험 변수 통제+결론 명확"},
+{u:"서울대",m:"화학",k:"유기화학",t:"pH 환경 변화에 따른 쑥 에센셜오일 항균 활성 변화와 구조적 원인",method:"항균 실험+TLC 분석",pt:"실험→분석→재실험 성장 구조"},
+{u:"서울대",m:"수학",k:"정수론·암호",t:"RSA 암호화 소인수분해 기반 취약점과 양자컴퓨팅 시대 보완 방향",method:"수학적 증명+알고리즘 분석",pt:"수학 심화+컴퓨터과학 연결"},
+{u:"서울대",m:"심리학",k:"인지·행동",t:"인지 부하 이론으로 분석한 멀티태스킹 환경에서의 작업기억 용량 감소 패턴",method:"실험 설계+반응시간 측정",pt:"심리학 개념+실험 수행"},
+{u:"서울대",m:"환경학",k:"미세먼지",t:"서울-경기 미세먼지 PM2.5 농도의 기상 변수 기여도 분리 모델",method:"공공데이터+통계 분리모델",pt:"환경+기상 융합"},
+{u:"연세대",m:"의예과",k:"내성·감염",t:"항생제 내성균 확산 경로 모델링과 파지요법의 대안적 가능성 정량 분석",method:"논문 메타분석+수리 모델",pt:"의학적 문제의식+생명윤리"},
+{u:"연세대",m:"경제학",k:"국제경제",t:"세계은행 빈곤퇴치 정책의 사하라 이남 국가별 효과성 비교 분석",method:"세계은행 데이터+회귀",pt:"진로와 직결된 탐구 구조"},
+{u:"연세대",m:"심리학",k:"학습·무력감",t:"비대면 수업 환경에서의 학습된 무력감 발생 메커니즘 탐구",method:"설문(n=150)+경로분석",pt:"학업역량+탐구방법 구체성"},
+{u:"연세대",m:"화학공학",k:"폐플라스틱",t:"폐플라스틱 열분해 온도 구간별 수율 최적화와 부산물 조성 비교",method:"실험+GC-MS 분석",pt:"실험 변수 통제+산출물 명확"},
+{u:"연세대",m:"간호학",k:"노인·의료",t:"독거노인 복약순응도와 인지기능 저하의 상관관계: 지역사회 설문",method:"설문+통계",pt:"간호 관점+지역사회 연계"},
+{u:"고려대",m:"물리학",k:"전자기·5G",t:"고주파 5G 밀리미터파 전파 손실 특성과 도심 회절 패턴 시뮬레이션",method:"물리 시뮬레이션+이론",pt:"교과 심화 연계+전공 기초소양"},
+{u:"고려대",m:"법학",k:"AI·저작권",t:"인공지능 창작물 저작권 귀속 문제: 미국·EU·한국 판례 비교 분석",method:"판례 분석+법적 논리",pt:"법적 논리+사회적 맥락"},
+{u:"고려대",m:"경영학",k:"소비·MZ",t:"MZ세대 가치소비 트렌드가 ESG 브랜드 충성도에 미치는 영향",method:"설문+구조방정식",pt:"데이터 수집+분석+진로 연결"},
+{u:"성균관대",m:"의예과",k:"마이크로바이옴",t:"장내 마이크로바이옴 α-다양성 감소와 자가면역질환 발병률 메타분석",method:"논문 메타분석+통계",pt:"최신 의학 트렌드+논문 역량"},
+{u:"성균관대",m:"소프트웨어학",k:"딥러닝·의료",t:"합성곱 신경망(CNN) 기반 피부 병변 분류 정확도: 전이학습 기법별 비교",method:"Python+딥러닝",pt:"전공적합성+구체적 구현 경험"},
+{u:"성균관대",m:"화학",k:"분광분석",t:"식용색소 TLC 이동속도와 흡수 스펙트럼으로 분석한 구조-색상 관계",method:"실험+분광기",pt:"실험 설계+오차 분석"},
+{u:"서강대",m:"수학",k:"위상수학",t:"위상공간의 연속성 개념으로 분석한 신경망 결정경계의 기하학적 특성",method:"수학 이론+Python 시각화",pt:"수학 심화+CS 융합"},
+{u:"서강대",m:"경제학",k:"행동경제",t:"손실회피 편향이 대학생 투자 결정에 미치는 영향: 실험경제학",method:"실험+데이터 분석",pt:"교과 개념+실험 직접 설계"},
+{u:"한양대",m:"컴퓨터공학",k:"AI·공정성",t:"채용 추천 AI의 성별·학력 편향성 탐지와 counterfactual 공정성 적용",method:"Python+머신러닝",pt:"전공적합성+면접 연계"},
+{u:"한양대",m:"식품영양학",k:"발효·마이크로바이옴",t:"발효유 섭취 패턴이 장내 Lactobacillus 비율에 미치는 영향 추적",method:"문헌+식이 기록 분석",pt:"진로 구체화+다학제 연결"},
+{u:"한양대",m:"건축학",k:"패시브·에너지",t:"서울 기후 기반 패시브하우스 창호 면적비 최적화: 열손실 시뮬레이션",method:"에너지 시뮬레이션+설계",pt:"공학+환경+설계 연계"},
+{u:"중앙대",m:"심리학",k:"스트레스·수면",t:"고3 수험생 학업 스트레스와 수면 질의 관계: 자기조절 전략 매개 분석",method:"설문(n=80)+회귀분석",pt:"성장 스토리+방법 구체성"},
+{u:"중앙대",m:"경제학",k:"넛지·행동",t:"급식 배식 순서 변경의 넛지 효과: 잔반 감소와 영양 균형 개선",method:"실험+데이터 수집",pt:"교과 개념+실생활 적용"},
+{u:"경희대",m:"한의예과",k:"동·서의학",t:"아스피린과 침술의 통증 억제 경로: COX-2 억제와 엔도르핀 분비 비교",method:"문헌+비교 분석",pt:"한의 특성+비교 연구 구조"},
+{u:"경희대",m:"생명공학",k:"환경·독성",t:"미세플라스틱 농도-반응: 어류 심박수와 부화율에 미치는 영향",method:"실험+통계",pt:"환경+생명 융합"},
+{u:"한국외대",m:"영어영문학",k:"담론·번역",t:"영화 자막 번역에서의 문화적 맥락 손실 패턴: 한영 번역 비교",method:"텍스트 분석+번역 비교",pt:"영어+문화 융합"},
+{u:"이화여대",m:"약학",k:"제약·분석",t:"HPLC 분석법으로 측정한 시중 비타민C 제제의 함량 편차와 안정성",method:"HPLC 실험+통계",pt:"약학 직결+분석 실험"},
+{u:"이화여대",m:"생명과학",k:"호르몬·환경",t:"내분비계 교란 물질(EDC)이 어류 성 결정에 미치는 영향과 환경정책 함의",method:"문헌+환경정책 분석",pt:"생명+환경+정책 융합"},
+{u:"KAIST",m:"전기전자",k:"양자오류정정",t:"토폴로지 양자 코드의 오류 임계값과 표면 코드 격자 크기 최적화",method:"수학 이론+시뮬레이션",pt:"질문 독창성+수학 심화"},
+{u:"KAIST",m:"생명과학",k:"합성생물학",t:"유전자 회로 설계로 구현한 논리게이트 기능과 세포 내 신호 처리 효율",method:"이론+논문 분석",pt:"생물+공학 융합+자기주도"},
+{u:"POSTECH",m:"신소재",k:"페로브스카이트",t:"습도 조건에 따른 페로브스카이트 태양전지 이온 이동 열화 속도 분석",method:"논문+소재 분석",pt:"소재 최전선+논문 역량"},
+{u:"DGIST",m:"융합학부",k:"BCI·재활",t:"뇌-컴퓨터 인터페이스(BCI)와 재활 로봇 연동 신호처리 알고리즘 최적화",method:"이론+프로토타입 설계",pt:"복수 학문 융합+자기주도성"},
+{u:"UNIST",m:"에너지공학",k:"수소·배터리",t:"전고체 배터리 고체전해질 이온전도도와 계면 저항의 온도 의존성",method:"문헌+실험 설계",pt:"에너지+소재 융합"},
+{u:"서울교대",m:"초등교육",k:"수학교육",t:"조작 활동과 디지털 도구 병행 수업이 초등 분수 개념 이해에 미치는 효과",method:"실험수업+평가 비교",pt:"교직 인성+교육 문제 해결"},
+{u:"경인교대",m:"초등교육",k:"환경교육",t:"프로젝트 기반 환경교육이 초등학생 생태 감수성에 미치는 영향",method:"관찰+사전·사후 평가",pt:"교육+환경 융합"},
+{u:"사범대",m:"수학교육",k:"수학불안",t:"수학 학습 불안 요인의 학년별 차이: 인지적·정서적·사회적 요인 구조",method:"설문+요인분석",pt:"교육+수학 이중 적합"},
+{u:"부산대",m:"의예과",k:"고령화·지역의료",t:"부산 고령화 지역 노인 의료 접근성 격차와 원격의료 도입 효과",method:"지역 데이터+정책 분석",pt:"지역사회 문제+의료 관심"},
+{u:"경북대",m:"컴퓨터학부",k:"UX·지역교통",t:"대구·경북 대중교통 실시간 정보 UX 프로토타입 설계와 사용성 평가",method:"프로토타입+사용성 테스트",pt:"지역 연계+공학 실천"},
+{u:"전남대",m:"수산생명의학",k:"적조·환경",t:"남해 적조 발생 패턴과 수온·영양염 농도의 10년 시계열 상관관계",method:"공공 데이터+시계열",pt:"지역 환경+과학적 분석"},
+{u:"인하대",m:"항공우주공학",k:"위성·대기항력",t:"저궤도 위성 대기 항력 모델 비교와 궤도 유지 추력 최적화",method:"이론+시뮬레이션",pt:"전공 직결+수치 분석"},
+{u:"아주대",m:"의학",k:"의료AI·응급",t:"응급실 과부하 예측 모델: 계절·요일·시간대 변수 중요도 비교",method:"공공 의료 데이터+ML",pt:"의료+AI 융합+지역 문제"},
+{u:"가천대",m:"AI소프트웨어",k:"스포츠AI",t:"KBO 투수 구종 분류 모델 정확도 개선: 피치 데이터 특성 엔지니어링",method:"Python+XGBoost",pt:"스포츠+AI 융합+구체적 데이터"},
+{u:"홍익대",m:"시각디자인",k:"인지·가독성",t:"공공 안내 표지판의 인지심리학적 가독성: 색상 대비·서체 크기 변수 비교",method:"실험+설문+디자인 제안",pt:"디자인+심리+실용성"},
+{u:"국민대",m:"자동차디자인",k:"UX·자율주행",t:"자율주행 실내 경험 디자인: 승객 불안 감소를 위한 인터페이스 프로토타입",method:"UX 설계+사용성 평가",pt:"미래 기술+디자인 사고"},
+{u:"한국체대",m:"스포츠과학",k:"단거리·반응",t:"100m 단거리 선수 출발 반응 시간과 스타트 자세 변인의 관계",method:"영상 분석+반응시간 측정",pt:"스포츠 데이터+과학적 분석"},
+{u:"동국대",m:"경찰행정학",k:"범죄·예측",t:"CCTV 밀도와 지역 범죄 발생률의 상관관계: 방범 효과의 공간적 분석",method:"GIS+범죄 데이터",pt:"경찰행정 직결+공간 분석"},
+{u:"건국대",m:"생명과학",k:"줄기세포",t:"iPSC 분화 효율에 영향 미치는 배양 조건 최적화: 온도·산소 농도",method:"문헌+실험 설계",pt:"생명공학 직결"},
+{u:"세종대",m:"우주항공공학",k:"위성·관측",t:"CubeSat 자세 제어 알고리즘의 시뮬레이션 성능과 전력 소비 트레이드오프",method:"시뮬레이션+이론",pt:"항공우주 직결"},
+{u:"서울과기대",m:"기계공학",k:"열유체·소음",t:"자동차 흡기 시스템 소음 저감을 위한 공명 챔버 형상 최적화",method:"시뮬레이션+실험",pt:"공학 기초+실용 문제"},
+{u:"한국항공대",m:"항공우주공학",k:"드론·유체",t:"드론 프로펠러 피치 각도 변화에 따른 추력과 전력 효율 트레이드오프",method:"실험+측정",pt:"항공 직결+실험 설계"},
+{u:"가톨릭대",m:"의예과",k:"의료·윤리",t:"말기 환자 연명의료 결정에서 가족 역할의 윤리적 한계와 자기결정권",method:"판례 분석+문헌",pt:"의료윤리+법제도 연결"},
+{u:"단국대",m:"약학",k:"약물전달",t:"키토산 나노입자 크기와 약물 방출 속도의 관계: 최적 전달 시스템",method:"나노 합성+방출 실험",pt:"약학 직결+나노 연결"},
+{u:"인천대",m:"경제학",k:"인천·경제",t:"인천 자유경제구역 지정 전후 지역 고용 변동과 산업 구조 전환",method:"지역 경제 데이터+비교",pt:"지역 경제+정책 연결"},
+{u:"숙명여대",m:"화학",k:"환경화학",t:"도심 빗물의 중금속 농도와 교통량의 상관관계: 서울 구별 비교",method:"현장 채취+원자흡광분석",pt:"환경+화학 융합"},
+{u:"명지대",m:"식품영양학",k:"발효·기능성",t:"된장 숙성 기간에 따른 이소플라본 배당체와 아글리콘 전환율",method:"실험+HPLC",pt:"식품+생화학 연결"},
+{u:"성신여대",m:"심리학",k:"음악치료",t:"노인 치매 환자 대상 음악 치료의 인지 기능 유지 효과 메타분석",method:"논문 메타분석",pt:"심리+의료 융합"},
+{u:"광운대",m:"로봇학부",k:"로봇·협동",t:"협동 로봇 충돌 감지 알고리즘의 민감도와 작업 효율 트레이드오프",method:"실험+알고리즘 분석",pt:"로봇공학 직결"},
+{u:"숭실대",m:"컴퓨터공학",k:"블록체인",t:"스마트 컨트랙트 취약점 유형별 발생 빈도와 보안 감사 도구 탐지율",method:"코드 분석+보안 도구",pt:"블록체인+보안 융합"},
+{u:"POSTECH",m:"화학",k:"촉매·그린화학",t:"팔라듐 촉매 크기 의존적 Suzuki 커플링 반응 효율과 재사용성 평가",method:"실험+화학 분석",pt:"화학 심화+친환경 연결"},
+{u:"GIST",m:"물리학",k:"광학·레이저",t:"펨토초 레이저 펄스의 자기상관 측정과 시간-대역폭 곱 실험적 검증",method:"실험+이론",pt:"물리 심화+광학 연결"},
+];
+
+/* ════ 대학급 ════ */
+const UNIV_GROUPS=[
+  {label:"서울권 최상위",desc:"좁고 깊은 탐구, 오차 분석, 질문 독창성이 핵심입니다.",row:[{id:"R1a",n:"서울대",s:"자기주도·독창성"},{id:"R1b",n:"연세대·고려대",s:"학업 수월성·스토리"},{id:"R1c",n:"성균관대·서강대",s:"전공적합성·데이터"},{id:"R1d",n:"한양대(서울)",s:"면접 연계 가능 주제"}]},
+  {label:"서울권 상위",desc:"성장 스토리와 직접 수행 가능한 방법이 중요합니다.",row:[{id:"R2a",n:"중앙대·경희대",s:"성장 스토리·일관성"},{id:"R2b",n:"한국외대·시립대",s:"언어·사회 융합"},{id:"R2c",n:"이화여대·숙명여대",s:"여대 특화 주제"},{id:"R2d",n:"건국대·동국대·홍익대",s:"실용성·포트폴리오"}]},
+  {label:"서울권 중위",desc:"교내 활동과 탐구의 연계, 성실성이 효과적입니다.",row:[{id:"R3a",n:"국민대·광운대·서울과기대",s:"이공계 실용 탐구"},{id:"R3b",n:"숭실대·세종대·명지대",s:"성실성·관심도"},{id:"R3c",n:"덕성·동덕·서울여대",s:"여대 중위"},{id:"R3d",n:"삼육대·한성대·성신여대",s:"봉사·인성 연계"}]},
+  {label:"경기·인천권",desc:"지역사회 문제 연계와 전공 직결 탐구가 차별화됩니다.",row:[{id:"R4a",n:"인하대·아주대",s:"전공 직결·지역 연계"},{id:"R4b",n:"가천대·가톨릭대",s:"의약·AI 융합"},{id:"R4c",n:"인천대·경기대",s:"경기·인천 중위"},{id:"R4d",n:"한국항공대·단국대",s:"특성화 분야"}]},
+  {label:"과기원 · 특수대",desc:"복수 학문 융합, 수학·물리 심화, 질문의 독창성이 최우선입니다.",row:[{id:"R5a",n:"KAIST·POSTECH",s:"이공계 최상위"},{id:"R5b",n:"GIST·DGIST·UNIST",s:"융합형 탐구"},{id:"R5c",n:"KENTECH·에너지공대",s:"에너지 특화"},{id:"R5d",n:"서울과기대·한기대",s:"이공 특성화"}]},
+  {label:"교대 · 사범대",desc:"교직 인성, 교육 문제 해결 관점이 핵심입니다.",row:[{id:"R6a",n:"서울교대·경인교대",s:"수도권 교대"},{id:"R6b",n:"지방 교대 5개교",s:"지방 교대"},{id:"R6c",n:"사범대(서울·연세·이화)",s:"주요 사범대"},{id:"R6d",n:"사범대(지방거점)",s:"지방 사범대"}]},
+  {label:"지방거점국립대",desc:"지역사회 문제 연계, 전공 기초소양이 차별화됩니다.",row:[{id:"R7a",n:"부산대·경북대",s:"영남 거점"},{id:"R7b",n:"전남대·전북대·충남대",s:"호남·충청 거점"},{id:"R7c",n:"충북대·강원대·제주대",s:"중부·강원·제주"},{id:"R7d",n:"경상국립대·창원대",s:"경남 거점"}]},
+  {label:"의약학 계열",desc:"생명윤리 쟁점 포함 필수, 임상적 문제의식이 강점입니다.",row:[{id:"R8a",n:"의대·치대·한의대",s:"생명윤리 필수"},{id:"R8b",n:"약학대학",s:"약학 특화"},{id:"R8c",n:"간호·보건 상위",s:"임상·지역사회"},{id:"R8d",n:"수의대·치위생",s:"동물·치의학"}]},
+  {label:"예체능 계열",desc:"포트폴리오 연계, 실기+이론 융합, 작품 기획·비평 능력을 드러내세요.",row:[{id:"R9a",n:"예술 상위(홍익·국민 등)",s:"포트폴리오 연계"},{id:"R9b",n:"체육·스포츠과학",s:"운동 데이터·분석"},{id:"R9c",n:"음악·공연예술",s:"이론+실기 융합"},{id:"R9d",n:"지방 예체능",s:"지방 예체능"}]},
+];
+
+const MAJOR_MAP={"의약보건":["의예과","치의예과","한의예과","약학과","간호학과","물리치료학과","임상병리학과","보건행정학과","응급구조학과","작업치료학과","수의학과","치위생학과"],"공학·AI":["컴퓨터공학과","인공지능학과","데이터사이언스학과","전기전자공학과","기계공학과","화학공학과","건축학과","도시공학과","산업공학과","항공우주공학과","로봇공학과","반도체공학과","자동차공학과","에너지공학과","환경공학과"],"자연·수학":["수학과","통계학과","물리학과","화학과","생명과학과","지구환경과학과","식품영양학과","해양학과","환경학과","신소재공학과","생화학과"],"사회과학·행정":["경찰행정학과","행정학과","정치외교학과","사회학과","심리학과","사회복지학과","언론정보학과","지리학과","법학과","인류학과"],"경제·경영":["경영학과","경제학과","회계학과","무역학과","금융학과","소비자학과","물류학과","마케팅학과","국제경영학과"],"교육":["초등교육과","교육학과","수학교육과","영어교육과","유아교육과","특수교육과","체육교육과","미술교육과","음악교육과","국어교육과","과학교육과"],"인문·어문·미디어":["국어국문학과","영어영문학과","사학과","철학과","문화콘텐츠학과","미디어커뮤니케이션학과","광고홍보학과","통번역학과","중어중문학과","일어일문학과"],"예체능":["시각디자인학과","산업디자인학과","영상애니메이션학과","패션디자인학과","실용음악과","체육학과","스포츠과학과","무용학과","연극영화과","미술학과","자동차디자인학과"]};
+const SUBJECT_MAP={"수학":["공통수학1","공통수학2","대수","미적분Ⅰ","미적분Ⅱ","확률과 통계","기하","경제 수학","인공지능 수학"],"영어":["공통영어1","공통영어2","영어Ⅰ","영어Ⅱ","영어 독해와 작문","영미 문학 읽기","미디어 영어","심화 영어"],"사회":["통합사회1","통합사회2","한국지리 탐구","세계사","정치","법과 사회","경제","사회·문화","사회문제 탐구","생활과 윤리","윤리와 사상"],"과학":["통합과학1","통합과학2","과학탐구실험","물리학","화학","생명과학","지구과학","역학과 에너지","전자기와 양자","화학 반응의 세계","세포와 물질대사","생물의 유전","기후변화와 환경생태"],"정보·공학":["정보","인공지능 기초","데이터 과학","소프트웨어와 생활","로봇과 공학세계","공학 일반"],"예술·체육":["음악","미술","체육","음악 연주와 창작","미술 창작","영상 제작","스포츠 과학","운동과 건강"],"교양·융합":["진로와 직업","논술","철학","심리학","교육학","환경","생태와 환경","민주시민"]};
+
+let currentPath="A",selectedUniv="",chosenCase=null,currentTopics=[],selectedTopic=null,lastReport="",caseFilter="전체";
+
+/* ════ COVER ════ */
+function enterApp(){document.getElementById("cover").style.display="none";document.getElementById("app").style.display="block";window.scrollTo(0,0);}
+
+/* ════ NAV ════ */
+function switchPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
+  document.getElementById("page-"+id).classList.add("on");
+  const map={setup:0,topics:1,roadmap:2,report:3};
+  document.querySelectorAll(".ntab")[map[id]]?.classList.add("on");
+}
+
+/* ════ PATH ════ */
+function selectPath(p){
+  currentPath=p;
+  document.getElementById("pathA").classList.toggle("sel",p==="A");
+  document.getElementById("pathB").classList.toggle("sel",p==="B");
+  document.getElementById("caseSection").style.display=p==="A"?"block":"none";
+  document.getElementById("prevBox").style.display=p==="B"?"block":"none";
+}
+
+/* ════ UNIV ════ */
+function renderUnivGroups(){
+  document.getElementById("univGroups").innerHTML=UNIV_GROUPS.map(g=>`
+    <div class="ug"><div class="ug-lbl">${esc(g.label)}</div>
+    <div class="ug-row">${g.row.map(u=>`
+      <button class="ubtn" onclick="selectUniv(this,'${u.id}','${esc(u.n)}','${esc(g.desc)}')" >
+        ${esc(u.n)}<small>${esc(u.s)}</small>
+      </button>`).join("")}
+    </div></div>`).join("");
+}
+function selectUniv(el,id,name,desc){
+  document.querySelectorAll(".ubtn").forEach(b=>b.classList.remove("sel"));
+  el.classList.add("sel");
+  selectedUniv=`${name} (${id})`;
+  document.getElementById("univSelLbl").textContent="✓ "+name;
+  const ef=document.getElementById("univEffect");
+  ef.style.display="block";
+  ef.innerHTML=`<strong>${esc(name)}</strong> — ${esc(desc)}`;
+}
+
+/* ════ CASE DB ════ */
+function renderCaseTabs(){
+  const univs=["전체",...new Set(DB.map(c=>c.u))];
+  document.getElementById("caseTabs").innerHTML=univs.map(u=>
+    `<button class="ctab${u==="전체"?" on":""}" onclick="setCaseFilter('${esc(u)}',this)">${esc(u)}</button>`
+  ).join("");
+}
+function setCaseFilter(u,btn){caseFilter=u;document.querySelectorAll(".ctab").forEach(b=>b.classList.remove("on"));btn.classList.add("on");filterCases();}
+function filterCases(){
+  const kw=(document.getElementById("caseSearch")?.value||"").toLowerCase().trim();
+  const list=DB.filter(c=>(caseFilter==="전체"||c.u===caseFilter)&&(!kw||(c.t+c.m+c.u+c.k+c.method).toLowerCase().includes(kw)));
+  document.getElementById("caseCount").textContent=list.length+"건";
+  document.getElementById("caseGrid").innerHTML=list.map(c=>{
+    const idx=DB.indexOf(c),chosen=chosenCase===idx;
+    return`<div class="cc${chosen?" chosen":""}">
+      <div class="cc-top"><span class="cc-univ">${esc(c.u)}</span><span class="cc-major">${esc(c.m)}</span></div>
+      <div class="cc-title">${esc(c.t)}</div>
+      <div class="cc-method">📐 ${esc(c.method)}</div>
+      <span class="cc-point">✓ ${esc(c.pt)}</span>
+      <button class="cc-select-btn" onclick="chooseCase(${idx})">${chosen?"✓ 선택됨":"선택"}</button>
+    </div>`;
+  }).join("");
+}
+function chooseCase(idx){
+  chosenCase=idx;
+  const c=DB[idx];
+  document.getElementById("chosenTitle").textContent=`${c.u} ${c.m} — ${c.t}`;
+  document.getElementById("chosenBar").classList.add("on");
+  filterCases();
+}
+function clearChosen(){chosenCase=null;document.getElementById("chosenBar").classList.remove("on");filterCases();}
+
+/* ════ MAJOR / SUBJECT ════ */
+function updateMajors(){document.getElementById("majorDetail").innerHTML=(MAJOR_MAP[document.getElementById("track").value]||[]).map(x=>`<option>${esc(x)}</option>`).join("");}
+function updateSubjects(){document.getElementById("subject").innerHTML=(SUBJECT_MAP[document.getElementById("subjectGroup").value]||[]).map(x=>`<option>${esc(x)}</option>`).join("");}
+
+/* ════ HELPERS ════ */
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function v(id){const el=document.getElementById(id);return el?el.value.trim():""}
+function setLoading(on){document.getElementById("loading").classList.toggle("on",on)}
+function showErr(msg){const e=document.getElementById("error");e.classList.add("on");e.textContent=msg}
+function clearErr(){const e=document.getElementById("error");e.classList.remove("on");e.textContent=""}
+
+/* ════ GENERATE ════ */
+async function generate(){
+  clearErr();setLoading(true);
+  const payload={
+    mode:"topics",level:selectedUniv||"미선택",
+    track:v("track"),majorDetail:v("majorDetail"),subjectGroup:v("subjectGroup"),
+    subject:v("subject"),keyword:v("keyword"),history:v("history"),
+    reportMode:currentPath==="A"?"db":"prev",
+  };
+  if(currentPath==="A"&&chosenCase!==null)
+    payload.selectedCase=`${DB[chosenCase].u} ${DB[chosenCase].m}: ${DB[chosenCase].t}`;
+  if(currentPath==="B") payload.prevResearch=v("prevResearch");
+
+  try{
+    const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await r.json();
+    if(!r.ok||data.error) throw new Error(data.error||"생성 실패");
+    currentTopics=data.topics||[];
+    if(!currentTopics.length) throw new Error("주제가 생성되지 않았습니다. 다시 시도해 주세요.");
+    renderTopics();
+    if(data.sources?.length) renderSources(data.sources);
+    switchPage("topics");
+  }catch(e){showErr(e.message)}
+  finally{setLoading(false)}
+}
+
+/* ════ TOPICS ════ */
+function renderTopics(){
+  document.getElementById("topics").innerHTML=currentTopics.map((t,i)=>`
+    <article class="tc" id="tc${i}" onclick="selectTopic(${i})">
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="tc-num">${i+1}</div><span class="tc-type">${esc(t.type||"")}</span>
+      </div>
+      <h3>${esc(t.title||"")}</h3>
+      <p class="tc-q">"${esc(t.question||"")}"</p>
+      <p class="tc-body">${esc(t.summary||"")}</p>
+      <p style="font-size:11.5px;color:var(--ink2)"><b>과목 연결</b> ${esc(t.curriculumFit||"")}</p>
+      <div class="tc-tags">
+        <span class="tg tg-g">${esc((t.differentiator||"").slice(0,20))}</span>
+        ${(t.tags||[]).slice(0,2).map(x=>`<span class="tg tg-b">${esc(x)}</span>`).join("")}
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px;justify-content:center" onclick="event.stopPropagation();selectTopic(${i})">로드맵 + 보고서 →</button>
+    </article>`).join("");
+}
+
+/* ════ ROADMAP ════ */
+function selectTopic(i){
+  selectedTopic=currentTopics[i];
+  document.querySelectorAll(".tc").forEach((c,idx)=>c.classList.toggle("sel",idx===i));
+  renderRoadmap(selectedTopic);
+  switchPage("roadmap");
+}
+function renderRoadmap(t){
+  const ev=t.evidence||{};
+  const steps=(t.roadmap||[]).map((s,idx)=>`
+    <div class="step"><div class="step-line"></div>
+      <div class="step-no">${idx+1}<br><span style="font-size:9px;opacity:.6">${esc((s.title||"").slice(0,6))}</span></div>
+      <div class="step-c">
+        <h3>${esc(s.title||"")}</h3><p>${esc(s.detail||"")}</p>
+        ${s.tools?`<div class="step-tools">${s.tools.map(x=>`<span class="stool">${esc(x)}</span>`).join("")}</div>`:""}
+      </div>
+    </div>`).join("");
+  document.getElementById("roadmapBody").innerHTML=`
+    <div class="rm-2c">
+      <div>
+        <p style="font-family:var(--f-d);font-size:15px;color:var(--blue);margin-bottom:9px;font-style:italic">"${esc(t.question||"")}"</p>
+        <p style="font-size:13px;color:var(--ink2);line-height:1.82;margin-bottom:18px">${esc(t.summary||"")}</p>
+        <div class="evid-g">
+          <div class="evid-c"><h4>📚 교과 근거</h4><p>${esc(ev.subject||"")}</p></div>
+          <div class="evid-c"><h4>📖 자료 근거</h4><p>${esc(ev.book||"")}</p></div>
+          <div class="evid-c"><h4>🏛 대학 평가 관점</h4><p>${esc(ev.admission||"")}</p></div>
+        </div>
+      </div>
+      <div class="rm-meta">
+        <div class="rm-lbl">세부학과 적합성</div><p>${esc(t.majorFit||"")}</p>
+        <div class="rm-lbl">2022 과목 연결</div><p>${esc(t.curriculumFit||"")}</p>
+        <div class="rm-lbl">중복 회피 포인트</div><p>${esc(t.duplicateCheck||"")}</p>
+      </div>
+    </div>
+    <div class="steps">${steps}</div>`;
+  document.getElementById("rmActs").style.display="flex";
+  document.getElementById("rmActs").innerHTML=`
+    <button class="btn btn-primary" onclick="generateReport('db')">📝 경로A 보고서 — 합격사례 기반</button>
+    <button class="btn btn-teal" onclick="generateReport('prev')">📚 경로B 보고서 — 기존 탐구 심화</button>
+    <button class="btn btn-ghost" onclick="switchPage('topics')">← 주제 목록</button>`;
+}
+
+/* ════ REPORT ════ */
+async function generateReport(rMode){
+  if(!selectedTopic){alert("주제를 먼저 선택하세요.");return}
+  clearErr();setLoading(true);
+  const payload={
+    mode:"report",reportMode:rMode,level:selectedUniv||"미선택",
+    track:v("track"),majorDetail:v("majorDetail"),subject:v("subject"),
+    keyword:v("keyword"),history:v("history"),selectedTopic,prevResearch:v("prevResearch"),
+  };
+  if(rMode==="db"&&chosenCase!==null)
+    payload.selectedCase=`${DB[chosenCase].u} ${DB[chosenCase].m}: ${DB[chosenCase].t}`;
+  try{
+    const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await r.json();
+    if(!r.ok||data.error) throw new Error(data.error||"생성 실패");
+    lastReport=data.report||"";
+    document.getElementById("report").textContent=lastReport;
+    switchPage("report");
+  }catch(e){showErr(e.message)}
+  finally{setLoading(false)}
+}
+
+function renderSources(sources){
+  if(!sources?.length) return;
+  document.getElementById("srcArea").innerHTML=`
+    <p style="font-family:var(--f-m);font-size:9px;font-weight:700;color:var(--ink4);margin-bottom:6px;letter-spacing:.12em;text-transform:uppercase">Gemini 참고 출처</p>
+    <div class="src-list">${sources.slice(0,6).map(s=>`<div class="src-item"><a href="${esc(s.uri)}" target="_blank">${esc(s.title||s.uri)}</a></div>`).join("")}</div>`;
+}
+function copyReport(){
+  if(!lastReport){alert("보고서를 먼저 생성하세요.");return}
+  navigator.clipboard.writeText(lastReport).then(()=>alert("보고서가 복사되었습니다."));
+}
+
+/* ════ INIT ════ */
+renderUnivGroups();renderCaseTabs();filterCases();updateMajors();updateSubjects();selectPath("A");
+</script>
+</body>
+</html>
